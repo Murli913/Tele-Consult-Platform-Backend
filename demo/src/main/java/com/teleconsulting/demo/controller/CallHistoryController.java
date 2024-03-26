@@ -17,6 +17,8 @@ public class CallHistoryController {
     @Autowired
     private CallHistoryService callHistoryService;
 
+
+
     @PostMapping("/add")
     public String add(@RequestBody CallHistory callHistory)
     {
@@ -38,6 +40,12 @@ public class CallHistoryController {
         LocalTime start = LocalTime.parse(startTime);
         LocalTime end = LocalTime.parse(endTime);
         List<CallHistory> callHistoryList = callHistoryService.getCallHistoryForTodayWithinTimeRange(start, end);
+        return ResponseEntity.ok(callHistoryList);
+    }
+
+    @GetMapping("/getpatienthistory/{id}")
+    public ResponseEntity<List<CallHistory>> getCallHistoryForDoctor(@PathVariable("id") Long doctorId) {
+        List<CallHistory> callHistoryList = callHistoryService.getCallHistoryForDoctor(doctorId);
         return ResponseEntity.ok(callHistoryList);
     }
 }

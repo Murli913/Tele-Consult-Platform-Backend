@@ -13,4 +13,6 @@ public interface CallHistoryService {
     List<CallHistory> getCallHistoryForToday();
     List<CallHistory> getCallHistoryForTodayWithinTimeRange(LocalTime startTime, LocalTime endTime);
 
+    List<CallHistory> getCallHistoryForDoctor(Long doctorId);
+
 }

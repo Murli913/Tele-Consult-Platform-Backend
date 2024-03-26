@@ -14,7 +14,10 @@ public class CallHistoryServiceImpl implements CallHistoryService{
     @Autowired
     private CallHistoryRepository callHistoryRepository;
 
-
+    @Override
+    public List<CallHistory> getCallHistoryForDoctor(Long doctorId) {
+        return callHistoryRepository.findByDoctorId(doctorId);
+    }
     @Override
     public CallHistory saveCallHistory(CallHistory callHistory) {
         return callHistoryRepository.save(callHistory);
