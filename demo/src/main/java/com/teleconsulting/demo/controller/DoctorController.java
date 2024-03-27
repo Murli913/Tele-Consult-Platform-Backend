@@ -92,4 +92,13 @@ Doctor updateDoctor(@RequestBody Doctor newDoctor, @PathVariable Long id) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
         }
     }
+    @GetMapping("/{doctorId}")
+    public ResponseEntity<String> getDoctorById(@PathVariable Long doctorId) {
+        Doctor doctor = doctorService.findById(doctorId);
+        if (doctor != null) {
+            return ResponseEntity.ok(doctor.getPhoneNumber());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
