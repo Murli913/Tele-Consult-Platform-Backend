@@ -99,5 +99,10 @@ public class CallHistoryServiceImpl implements CallHistoryService{
             throw new IllegalArgumentException("Call history entry with ID " + id + " not found");
         }}
 
+    @Override
+    public List<CallHistory> getAllCallHistoryForDoctor(Long doctorId) {
+        return callHistoryRepository.findByDoctorId(doctorId);
+}
+
 
 }
