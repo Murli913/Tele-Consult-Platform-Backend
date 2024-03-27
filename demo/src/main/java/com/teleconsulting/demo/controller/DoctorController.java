@@ -81,4 +81,15 @@ Doctor updateDoctor(@RequestBody Doctor newDoctor, @PathVariable Long id) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
         }
     }
+
+
+    @GetMapping("/{doctorId}/incoming-call")
+    public ResponseEntity<?> getIncomingCall(@PathVariable Long doctorId) {
+        Doctor doctor = doctorService.findById(doctorId);
+        if (doctor != null) {
+            return ResponseEntity.ok(doctor.getIncomingCall());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
+        }
+    }
 }
