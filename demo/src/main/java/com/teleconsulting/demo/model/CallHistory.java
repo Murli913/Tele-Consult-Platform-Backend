@@ -23,7 +23,10 @@ public class CallHistory {
     private LocalTime callTime;
     private String prescription;
 
-    // Getters and setters
+
+
+
+// Getters and setters
 
     public Long getId() {
         return id;

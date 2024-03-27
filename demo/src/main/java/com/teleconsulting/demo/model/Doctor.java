@@ -11,7 +11,29 @@ public class Doctor {
     private String gender;
     private String phoneNumber;
 
+    @ManyToOne
+    @JoinColumn(name = "sdid")
+    private Doctor supervisorDoctor;
 
+    private String password;
+
+    private String incomingCall;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getIncomingCall() {
+        return incomingCall;
+    }
+
+    public void setIncomingCall(String incomingCall) {
+        this.incomingCall = incomingCall;
+    }
 
     public Doctor getSupervisorDoctor() {
         return supervisorDoctor;
@@ -21,9 +43,7 @@ public class Doctor {
         this.supervisorDoctor = supervisorDoctor;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "sdid")
-    private Doctor supervisorDoctor;
+
 
 
     public Long getId() {
