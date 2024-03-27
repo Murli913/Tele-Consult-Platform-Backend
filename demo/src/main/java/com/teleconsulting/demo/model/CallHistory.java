@@ -23,8 +23,15 @@ public class CallHistory {
     private LocalTime callTime;
     private String prescription;
 
+private LocalTime endTime;
 
+    public LocalTime getEndTime() {
+        return endTime;
+    }
 
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
 
 // Getters and setters
 
