@@ -106,6 +106,16 @@ public class CallHistoryController {
         return new ResponseEntity<>(callHistoryList, HttpStatus.OK);
 }
 
+    @PostMapping("/schedule")
+    public ResponseEntity<String> scheduleCall(@RequestBody CallHistory callHistory) {
+        try {
+            callHistoryService.saveCallHistory(callHistory);
+            return ResponseEntity.ok("Call scheduled successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error scheduling call");
+        }
+    }
+
 
 
 }
