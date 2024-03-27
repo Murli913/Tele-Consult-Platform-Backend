@@ -36,6 +36,17 @@ public class DoctorServiceImpl implements DoctorService{
         return doctorRepository.findById(id).orElse(null);
     }
 
+    @Override
+    public Doctor updateDoctorIncomingCall(String doctorPhoneNumber, String patientPhoneNumber) {
+        Doctor doctor = doctorRepository.findByPhoneNumber(doctorPhoneNumber);
+        if (doctor != null) {
+            doctor.setIncomingCall(patientPhoneNumber);
+            return doctorRepository.save(doctor);
+        } else {
+            return null; // Handle doctor not found scenario
+        }
+    }
+
 
     @Override
     public void deleteDoctorById(Long id) {

@@ -13,6 +13,8 @@ public interface DoctorService{
     Doctor findByPhoneNumber(String phoneNumber);
     Doctor findById(Long id);
 
+    Doctor updateDoctorIncomingCall(String doctorPhoneNumber, String patientPhoneNumber);
+
     void deleteDoctorById(Long id) throws UserNotFoundException;
 
 
