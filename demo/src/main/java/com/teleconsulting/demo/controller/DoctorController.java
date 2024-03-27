@@ -101,4 +101,16 @@ Doctor updateDoctor(@RequestBody Doctor newDoctor, @PathVariable Long id) {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PutMapping("/{doctorId}/reject-call")
+    public ResponseEntity<?> rejectCall(@PathVariable("doctorId") Long doctorId) {
+        Doctor doctor = doctorService.findById(doctorId);
+        if (doctor != null) {
+            doctor.setIncomingCall(null);
+            doctorService.saveDoctor(doctor);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
+}
+}
 }
