@@ -71,6 +71,16 @@ public class CallHistoryController {
 }
 }
 
+    @PutMapping("/{cid}/update-prescription/{prescription}")
+    public ResponseEntity<?> updatePrescription(@PathVariable Long cid, @PathVariable String prescription) {
+        try {
+            callHistoryService.updatePrescription(cid, prescription);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating prescription");
+}
+}
+
 
 
 }
