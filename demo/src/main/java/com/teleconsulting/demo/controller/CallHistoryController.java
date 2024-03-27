@@ -20,11 +20,10 @@ public class CallHistoryController {
 
 
     @PostMapping("/add")
-    public String add(@RequestBody CallHistory callHistory)
-    {
-        callHistoryService.saveCallHistory(callHistory);
-        return "New CallHistory added";
-    }
+    public Long add(@RequestBody CallHistory callHistory) {
+        CallHistory savedCallHistory = callHistoryService.saveCallHistory(callHistory);
+        return savedCallHistory.getId();
+}
 
     @GetMapping("/today")
     public ResponseEntity<List<CallHistory>> getCallHistoryForToday() {
