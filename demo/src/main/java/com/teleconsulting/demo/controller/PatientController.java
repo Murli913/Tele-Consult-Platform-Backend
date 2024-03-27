@@ -12,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("http://localhost:3000")
@@ -79,6 +81,29 @@ public class PatientController {
         Patient patient = patientService.updatePatient(patientId, pdetails );
         return ResponseEntity.ok(patient);
 }
+    @GetMapping("/{patientId}")
+    public ResponseEntity<?> getPatientNameAndAge(@PathVariable Long patientId) {
+        try {
+            // Retrieve the patient information by patientId
+            Patient patient = patientService.findById(patientId);
+
+            // Check if the patient exists
+            if (patient == null) {
+                return ResponseEntity.notFound().build(); // Return 404 Not Found if patient is not found
+            }
+
+            // Create a DTO (Data Transfer Object) to send only name and age
+            Map<String, Object> patientInfo = new HashMap<>();
+            patientInfo.put("name", patient.getName());
+            patientInfo.put("gender", patient.getGender());
+
+            // Return the patient name and gender in the response body
+            return ResponseEntity.ok(patientInfo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving patient information");
+
+        }
+    }
 
 
 
