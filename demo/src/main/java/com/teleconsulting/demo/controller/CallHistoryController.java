@@ -61,6 +61,16 @@ public class CallHistoryController {
         return new ResponseEntity<>(patientId, HttpStatus.OK);
 }
 
+    @PutMapping("/{cid}/updateendtime/{endtime}")
+    public ResponseEntity<?> updateendtime(@PathVariable Long cid, @PathVariable LocalTime endtime) {
+        try {
+            callHistoryService.updateendtime(cid, endtime);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating prescription");
+}
+}
+
 
 
 }
