@@ -31,6 +31,11 @@ public class DoctorServiceImpl implements DoctorService{
         return doctorRepository.findByPhoneNumber(phoneNumber);
     }
 
+    @Override
+    public Doctor findById(Long id) {
+        return doctorRepository.findById(id).orElse(null);
+    }
+
 
     @Override
     public void deleteDoctorById(Long id) {

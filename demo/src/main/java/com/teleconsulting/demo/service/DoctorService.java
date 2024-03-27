@@ -11,6 +11,7 @@ public interface DoctorService{
     List<Doctor> getAllDoctors();
 
     Doctor findByPhoneNumber(String phoneNumber);
+    Doctor findById(Long id);
 
     void deleteDoctorById(Long id) throws UserNotFoundException;
 
