@@ -38,7 +38,7 @@ public class DoctorController {
     }
 
     // "localhost:8081/doctor/"
-    @GetMapping("/doctor")
+    @GetMapping("/getdoctor")
     List<Doctor> getAllDoctors() {
         return doctorService.getAllDoctors();
     }

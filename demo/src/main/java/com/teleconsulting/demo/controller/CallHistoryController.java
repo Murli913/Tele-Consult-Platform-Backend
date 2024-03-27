@@ -43,7 +43,7 @@ public class CallHistoryController {
         return ResponseEntity.ok(callHistoryList);
     }
 
-    @GetMapping("/getpatienthistory/{id}")
+    @GetMapping("/getappointment/{id}")
     public ResponseEntity<List<CallHistory>> getCallHistoryForDoctor(@PathVariable("id") Long doctorId) {
         List<CallHistory> callHistoryList = callHistoryService.getCallHistoryForDoctor(doctorId);
         return ResponseEntity.ok(callHistoryList);

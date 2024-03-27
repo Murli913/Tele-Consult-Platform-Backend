@@ -11,6 +11,16 @@ public class Doctor {
     private String gender;
     private String phoneNumber;
 
+
+
+    public Doctor getSupervisorDoctor() {
+        return supervisorDoctor;
+    }
+
+    public void setSupervisorDoctor(Doctor supervisorDoctor) {
+        this.supervisorDoctor = supervisorDoctor;
+    }
+
     @ManyToOne
     @JoinColumn(name = "sdid")
     private Doctor supervisorDoctor;
