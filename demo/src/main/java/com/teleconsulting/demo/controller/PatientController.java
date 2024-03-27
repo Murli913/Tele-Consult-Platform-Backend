@@ -61,7 +61,11 @@ public class PatientController {
         Patient createdPatient = patientService.createPatient(patient);
         return new ResponseEntity<>(createdPatient, HttpStatus.CREATED);
 }
-
+    @GetMapping(params = "phoneNumber")
+    public ResponseEntity<Patient> getPatientByPhoneNumber(@RequestParam String phoneNumber) {
+        Patient patient = patientService.getPatientByPhoneNumber(phoneNumber);
+        return ResponseEntity.ok(patient);
+}
 
 
 
