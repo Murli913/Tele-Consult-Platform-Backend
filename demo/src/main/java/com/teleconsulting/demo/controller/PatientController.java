@@ -67,6 +67,12 @@ public class PatientController {
         return ResponseEntity.ok(patient);
 }
 
+    @GetMapping("/id")
+    public ResponseEntity<Patient> getPatientById(@RequestParam String phoneNumber) {
+        Patient patient = patientService.getPatientByPhoneNumber(phoneNumber);
+        return ResponseEntity.ok(patient);
+}
+
 
 
 }
