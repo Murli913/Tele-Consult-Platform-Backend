@@ -4,6 +4,7 @@ import com.teleconsulting.demo.exception.UserNotFoundException;
 import com.teleconsulting.demo.model.Doctor;
 import com.teleconsulting.demo.repository.DoctorRepository;
 import com.teleconsulting.demo.service.DoctorService;
+import com.teleconsulting.demo.service.RoomJoinRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,4 +69,16 @@ Doctor updateDoctor(@RequestBody Doctor newDoctor, @PathVariable Long id) {
                 return doctorRepository.save(Doctor);
             }).orElseThrow(() -> new UserNotFoundException(id));
 }
+
+    @PostMapping("/join-room")
+    public ResponseEntity<?> joinRoom(@RequestBody RoomJoinRequest request) {
+        Doctor doctor = doctorService.findByPhoneNumber(request.getDoctorPhoneNumber());
+        if (doctor != null) {
+            doctor.setIncomingCall(request.getPatientPhoneNumber());
+            doctorService.saveDoctor(doctor);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
+        }
+    }
 }
