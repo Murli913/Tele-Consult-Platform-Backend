@@ -1,6 +1,7 @@
 package com.teleconsulting.demo.service;
 
 import com.teleconsulting.demo.model.CallHistory;
+import com.teleconsulting.demo.model.Doctor;
 import com.teleconsulting.demo.repository.CallHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,11 +9,23 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CallHistoryServiceImpl implements CallHistoryService{
     @Autowired
     private CallHistoryRepository callHistoryRepository;
+    @Autowired
+    private DoctorService doctorService; // Inject DoctorService to fetch doctors by sdid
+
+    @Override
+    public List<CallHistory> getCallHistoryForDoctorsWithSdid(Long sdid) {
+        List<Long> doctorIds = doctorService.getDoctorsBySupervisorId(sdid).stream()
+                .map(Doctor::getId)
+                .collect(Collectors.toList());
+        return callHistoryRepository.findByDoctorIdIn(doctorIds);
+    }
+
 
     @Override
     public List<CallHistory> getCallHistoryForDoctor(Long doctorId) {

@@ -15,4 +15,6 @@ public interface CallHistoryService {
 
     List<CallHistory> getCallHistoryForDoctor(Long doctorId);
 
+
+    List<CallHistory> getCallHistoryForDoctorsWithSdid(Long sdid);
 }

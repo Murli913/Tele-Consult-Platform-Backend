@@ -13,4 +13,5 @@ public interface CallHistoryRepository extends JpaRepository<CallHistory, Long> 
     List<CallHistory> findByCallDateAndCallTimeBetween(LocalDate callDate, LocalTime startTime, LocalTime endTime);
 
     List<CallHistory> findByDoctorId(Long doctorId);
+    List<CallHistory> findByDoctorIdIn(List<Long> doctorIds);
 }
