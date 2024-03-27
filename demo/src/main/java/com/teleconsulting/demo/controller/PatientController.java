@@ -7,6 +7,8 @@ import com.teleconsulting.demo.repository.DoctorRepository;
 import com.teleconsulting.demo.repository.PatientRepository;
 import com.teleconsulting.demo.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,6 +55,14 @@ public class PatientController {
                     return patientRepository.save(Patient);
                 }).orElseThrow(() -> new UserNotFoundException(id));
     }
+
+    @PostMapping
+    public ResponseEntity<Patient> createPatient(@RequestBody Patient patient) {
+        Patient createdPatient = patientService.createPatient(patient);
+        return new ResponseEntity<>(createdPatient, HttpStatus.CREATED);
+}
+
+
 
 
 }
