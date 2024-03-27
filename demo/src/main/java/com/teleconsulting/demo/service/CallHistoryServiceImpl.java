@@ -69,5 +69,19 @@ public class CallHistoryServiceImpl implements CallHistoryService{
         }
 }
 
+    @Override
+    public void updateendtime(Long id, LocalTime endtime) {
+        Optional<CallHistory> optionalCallHistory = callHistoryRepository.findById(id);
+        if(optionalCallHistory.isPresent()) {
+            CallHistory callHistory = optionalCallHistory.get();
+            callHistory.setEndTime(endtime);
+            callHistoryRepository.save(callHistory);
+        }
+        else {
+            throw new IllegalArgumentException("Call history entry with ID " + id + " not found");
+
+        }
+    }
+
 
 }

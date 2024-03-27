@@ -19,6 +19,7 @@ public interface CallHistoryService {
     List<CallHistory> getCallHistoryForDoctorTodayWithinTimeRange(Long doctorId, LocalTime startTime, LocalTime endTime);
 
     void updatePrescription(Long id, String prescription);
+    void updateendtime(Long id, LocalTime endtime);
     List<CallHistory> getCallHistoryForDoctorsWithSdid(Long sdid);
 
 }
