@@ -20,6 +20,7 @@ public interface CallHistoryService {
 
     void updatePrescription(Long id, String prescription);
     void updateendtime(Long id, LocalTime endtime);
+    Long getPatientIdFromCallHistory(Long id);
     List<CallHistory> getCallHistoryForDoctorsWithSdid(Long sdid);
 
 }

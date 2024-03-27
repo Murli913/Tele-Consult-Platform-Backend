@@ -2,6 +2,7 @@ package com.teleconsulting.demo.service;
 
 import com.teleconsulting.demo.model.CallHistory;
 import com.teleconsulting.demo.model.Doctor;
+import com.teleconsulting.demo.model.Patient;
 import com.teleconsulting.demo.repository.CallHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,6 +83,21 @@ public class CallHistoryServiceImpl implements CallHistoryService{
 
         }
     }
+
+    @Override
+    public Long getPatientIdFromCallHistory(Long id) {
+        Optional<CallHistory> callHistoryOptional = callHistoryRepository.findById(id);
+        if (callHistoryOptional.isPresent()) {
+            CallHistory callHistory = callHistoryOptional.get();
+            Patient patient = callHistory.getPatient();
+            if (patient != null) {
+                return patient.getId();
+            } else {
+                throw new IllegalStateException("Patient ID not found for call history entry with ID " + id);
+            }
+        } else {
+            throw new IllegalArgumentException("Call history entry with ID " + id + " not found");
+        }}
 
 
 }
