@@ -1,5 +1,6 @@
 package com.teleconsulting.demo.controller;
 
+import com.teleconsulting.demo.dto.Pdetails;
 import com.teleconsulting.demo.exception.UserNotFoundException;
 import com.teleconsulting.demo.model.Doctor;
 import com.teleconsulting.demo.model.Patient;
@@ -70,6 +71,12 @@ public class PatientController {
     @GetMapping("/id")
     public ResponseEntity<Patient> getPatientById(@RequestParam String phoneNumber) {
         Patient patient = patientService.getPatientByPhoneNumber(phoneNumber);
+        return ResponseEntity.ok(patient);
+}
+
+    @PutMapping("/{patientId}")
+    public ResponseEntity<Patient> updatePatient(@PathVariable Long patientId, @RequestBody Pdetails pdetails) {
+        Patient patient = patientService.updatePatient(patientId, pdetails );
         return ResponseEntity.ok(patient);
 }
 
