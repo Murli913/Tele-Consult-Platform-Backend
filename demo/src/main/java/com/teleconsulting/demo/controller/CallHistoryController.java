@@ -81,6 +81,24 @@ public class CallHistoryController {
 }
 }
 
+    @GetMapping("/doctor/{doctorId}")
+    public ResponseEntity<List<CallHistory>> getCallHistoryForDoctorToday(
+            @PathVariable Long doctorId,
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime) {
+        List<CallHistory> callHistoryList;
+        if (startTime != null && endTime != null) {
+            // If startTime and endTime are provided, filter call history within the specified time range
+            LocalTime start = LocalTime.parse(startTime);
+            LocalTime end = LocalTime.parse(endTime);
+            callHistoryList = callHistoryService.getCallHistoryForDoctorTodayWithinTimeRange(doctorId, start, end);
+        } else {
+            // If startTime and endTime are not provided, fetch all call history for the doctor for today
+            callHistoryList = callHistoryService.getCallHistoryForDoctorToday(doctorId);
+        }
+        return new ResponseEntity<>(callHistoryList, HttpStatus.OK);
+}
+
 
 
 }
