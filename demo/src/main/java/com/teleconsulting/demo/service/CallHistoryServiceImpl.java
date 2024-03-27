@@ -46,6 +46,10 @@ public class CallHistoryServiceImpl implements CallHistoryService{
         LocalDate today = LocalDate.now();
         return callHistoryRepository.findByCallDateAndCallTimeBetween(today, startTime, endTime);
     }
+    @Override
+    public List<CallHistory> getCallHistoryForDoctorToday(Long doctorId) {
+        return callHistoryRepository.findByDoctorIdAndCallDate(doctorId, LocalDate.now());
+}
 
 
 }
