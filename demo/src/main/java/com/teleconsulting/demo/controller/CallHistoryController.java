@@ -99,6 +99,13 @@ public class CallHistoryController {
         return new ResponseEntity<>(callHistoryList, HttpStatus.OK);
 }
 
+    @GetMapping("/doctor/{doctorId}/all")
+    public ResponseEntity<List<CallHistory>> getAllCallHistoryForDoctor(
+            @PathVariable Long doctorId) {
+        List<CallHistory> callHistoryList = callHistoryService.getAllCallHistoryForDoctor(doctorId);
+        return new ResponseEntity<>(callHistoryList, HttpStatus.OK);
+}
+
 
 
 }
