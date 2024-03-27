@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,6 +56,17 @@ public class CallHistoryServiceImpl implements CallHistoryService{
     public List<CallHistory> getCallHistoryForDoctorTodayWithinTimeRange(Long doctorId, LocalTime startTime, LocalTime endTime) {
         LocalDate today = LocalDate.now();
         return callHistoryRepository.findByDoctorIdAndCallDateAndCallTimeBetween(doctorId, today, startTime,endTime);
+}
+    @Override
+    public void updatePrescription(Long id, String prescription) {
+        Optional<CallHistory> optionalCallHistory = callHistoryRepository.findById(id);
+        if (optionalCallHistory.isPresent()) {
+            CallHistory callHistory = optionalCallHistory.get();
+            callHistory.setPrescription(prescription);
+            callHistoryRepository.save(callHistory);
+        } else {
+            throw new IllegalArgumentException("Call history entry with ID " + id + " not found");
+        }
 }
 
 
