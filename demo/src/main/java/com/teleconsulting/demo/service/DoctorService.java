@@ -1,5 +1,6 @@
 package com.teleconsulting.demo.service;
 import com.teleconsulting.demo.exception.UserNotFoundException;
+import com.teleconsulting.demo.model.AuthenticationResponse;
 import com.teleconsulting.demo.model.Doctor;
 import com.teleconsulting.demo.repository.DoctorRepository;
 
@@ -7,6 +8,8 @@ import java.util.List;
 
 public interface DoctorService{
     public Doctor saveDoctor(Doctor doctor);
+
+    AuthenticationResponse saveNewDoctor(Doctor doctor);
 
     List<Doctor> getAllDoctors();
 
