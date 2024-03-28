@@ -23,7 +23,7 @@ public class DoctorController {
 
     @Autowired
     private DoctorRepository doctorRepository;
-    @GetMapping("/supervisor/{supervisorId}")
+    @GetMapping("/supervisor/{supervisorId}") // List of Doc under Sr Doc
     public ResponseEntity<List<Doctor>> getDoctorsBySupervisorId(@PathVariable("supervisorId") Long supervisorId) {
         List<Doctor> doctors = doctorService.getDoctorsBySupervisorId(supervisorId);
         return new ResponseEntity<>(doctors, HttpStatus.OK);
@@ -31,7 +31,7 @@ public class DoctorController {
 
 
 
-    @PostMapping("/add")
+    @PostMapping("/add") // Move to Admin
     public String add(@RequestBody Doctor doctor)
     {
         doctorService.saveDoctor(doctor);
@@ -39,11 +39,11 @@ public class DoctorController {
     }
 
     // "localhost:8081/doctor/"
-    @GetMapping("/getdoctor")
+    @GetMapping("/getdoctor") // Move to Admin
     List<Doctor> getAllDoctors() {
         return doctorService.getAllDoctors();
     }
-    @DeleteMapping("/doctor/{id}")
+    @DeleteMapping("/doctor/{id}") // Move to Admin
     String deleteDoctor(@PathVariable Long id){
         try{
             doctorService.deleteDoctorById(id);
@@ -53,24 +53,24 @@ public class DoctorController {
         }
 
     }
-    @GetMapping("/doctor/{id}")
+    @GetMapping("/doctor/{id}") // Return Doc details from its id
     Doctor getUserById(@PathVariable Long id) {
         return doctorRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
-@PutMapping("/doctors/{id}")
-Doctor updateDoctor(@RequestBody Doctor newDoctor, @PathVariable Long id) {
-    return doctorRepository.findById(id)
-            .map(Doctor -> {
-                Doctor.setGender(newDoctor.getGender());
-                Doctor.setName(newDoctor.getName());
-                Doctor.setPhoneNumber(newDoctor.getPhoneNumber());
+    @PutMapping("/doctors/{id}") // Move to Admin
+    Doctor updateDoctor(@RequestBody Doctor newDoctor, @PathVariable Long id) {
+        return doctorRepository.findById(id)
+                .map(Doctor -> {
+                    Doctor.setGender(newDoctor.getGender());
+                    Doctor.setName(newDoctor.getName());
+                    Doctor.setPhoneNumber(newDoctor.getPhoneNumber());
 
-                return doctorRepository.save(Doctor);
-            }).orElseThrow(() -> new UserNotFoundException(id));
-}
+                    return doctorRepository.save(Doctor);
+                }).orElseThrow(() -> new UserNotFoundException(id));
+    }
 
-    @PostMapping("/join-room")
+    @PostMapping("/join-room") // Update incoming call
     public ResponseEntity<?> joinRoom(@RequestBody RoomJoinRequest request) {
         Doctor doctor = doctorService.findByPhoneNumber(request.getDoctorPhoneNumber());
         if (doctor != null) {
@@ -83,7 +83,7 @@ Doctor updateDoctor(@RequestBody Doctor newDoctor, @PathVariable Long id) {
     }
 
 
-    @GetMapping("/{doctorId}/incoming-call")
+    @GetMapping("/{doctorId}/incoming-call") // Return Incoming call
     public ResponseEntity<?> getIncomingCall(@PathVariable Long doctorId) {
         Doctor doctor = doctorService.findById(doctorId);
         if (doctor != null) {
@@ -92,7 +92,7 @@ Doctor updateDoctor(@RequestBody Doctor newDoctor, @PathVariable Long id) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
         }
     }
-    @GetMapping("/{doctorId}")
+    @GetMapping("/{doctorId}") // Return Doc phone number by its ID
     public ResponseEntity<String> getDoctorById(@PathVariable Long doctorId) {
         Doctor doctor = doctorService.findById(doctorId);
         if (doctor != null) {
@@ -102,7 +102,7 @@ Doctor updateDoctor(@RequestBody Doctor newDoctor, @PathVariable Long id) {
         }
     }
 
-    @PutMapping("/{doctorId}/reject-call")
+    @PutMapping("/{doctorId}/reject-call") // Update Incoming Call to Null after end call
     public ResponseEntity<?> rejectCall(@PathVariable("doctorId") Long doctorId) {
         Doctor doctor = doctorService.findById(doctorId);
         if (doctor != null) {

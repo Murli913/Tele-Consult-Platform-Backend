@@ -19,19 +19,19 @@ public class CallHistoryController {
 
 
 
-    @PostMapping("/add")
+    @PostMapping("/add") // Doctor
     public Long add(@RequestBody CallHistory callHistory) {
         CallHistory savedCallHistory = callHistoryService.saveCallHistory(callHistory);
         return savedCallHistory.getId();
 }
 
-    @GetMapping("/today")
+    @GetMapping("/today") // TRASH
     public ResponseEntity<List<CallHistory>> getCallHistoryForToday() {
         List<CallHistory> callHistoryList = callHistoryService.getCallHistoryForToday();
         return new ResponseEntity<>(callHistoryList, HttpStatus.OK);
     }
 
-    @GetMapping("/today/search")
+    @GetMapping("/today/search") // TRASH
     public ResponseEntity<List<CallHistory>> searchCallHistory(
             @RequestParam("startTime") String startTime,
             @RequestParam("endTime") String endTime) {
@@ -42,25 +42,25 @@ public class CallHistoryController {
         return ResponseEntity.ok(callHistoryList);
     }
 
-    @GetMapping("/getappointment/{id}")
+    @GetMapping("/getappointment/{id}") // Doctor Past Appointment ( Call history )
     public ResponseEntity<List<CallHistory>> getCallHistoryForDoctor(@PathVariable("id") Long doctorId) {
         List<CallHistory> callHistoryList = callHistoryService.getCallHistoryForDoctor(doctorId);
         return ResponseEntity.ok(callHistoryList);
     }
 
-    @GetMapping("/seniordoctors/{sdid}")
+    @GetMapping("/seniordoctors/{sdid}") // Past appointment of Sr Doc and Doc under Sr Doc
     public ResponseEntity<List<CallHistory>> getCallHistoryForDoctorsWithSdid(@PathVariable("sdid") Long sdid) {
             List<CallHistory> callHistoryList = callHistoryService.getCallHistoryForDoctorsWithSdid(sdid);
             return ResponseEntity.ok(callHistoryList);
     }
 
-    @GetMapping("/{id}/patientId")
+    @GetMapping("/{id}/patientId") // Get Appointment for given patient
     public ResponseEntity<Long> getPatientIdFromCallHistory(@PathVariable Long id) {
         Long patientId = callHistoryService.getPatientIdFromCallHistory(id);
         return new ResponseEntity<>(patientId, HttpStatus.OK);
 }
 
-    @PutMapping("/{cid}/updateendtime/{endtime}")
+    @PutMapping("/{cid}/updateendtime/{endtime}") // Update End time when call ends
     public ResponseEntity<?> updateendtime(@PathVariable Long cid, @PathVariable LocalTime endtime) {
         try {
             callHistoryService.updateendtime(cid, endtime);
@@ -70,7 +70,7 @@ public class CallHistoryController {
 }
 }
 
-    @PutMapping("/{cid}/update-prescription/{prescription}")
+    @PutMapping("/{cid}/update-prescription/{prescription}") // Update Prescription when call end
     public ResponseEntity<?> updatePrescription(@PathVariable Long cid, @PathVariable String prescription) {
         try {
             callHistoryService.updatePrescription(cid, prescription);
@@ -80,7 +80,7 @@ public class CallHistoryController {
 }
 }
 
-    @GetMapping("/doctor/{doctorId}")
+    @GetMapping("/doctor/{doctorId}") // Get call history for given Doc
     public ResponseEntity<List<CallHistory>> getCallHistoryForDoctorToday(
             @PathVariable Long doctorId,
             @RequestParam(required = false) String startTime,
@@ -98,14 +98,14 @@ public class CallHistoryController {
         return new ResponseEntity<>(callHistoryList, HttpStatus.OK);
 }
 
-    @GetMapping("/doctor/{doctorId}/all")
+    @GetMapping("/doctor/{doctorId}/all") // Past history for given Doc
     public ResponseEntity<List<CallHistory>> getAllCallHistoryForDoctor(
             @PathVariable Long doctorId) {
         List<CallHistory> callHistoryList = callHistoryService.getAllCallHistoryForDoctor(doctorId);
         return new ResponseEntity<>(callHistoryList, HttpStatus.OK);
 }
 
-    @PostMapping("/schedule")
+    @PostMapping("/schedule") // Doctor
     public ResponseEntity<String> scheduleCall(@RequestBody CallHistory callHistory) {
         try {
             callHistoryService.saveCallHistory(callHistory);

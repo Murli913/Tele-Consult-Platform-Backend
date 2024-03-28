@@ -1,81 +1,65 @@
 package com.teleconsulting.demo.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
-public class Doctor {
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Doctor implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String gender;
     private String phoneNumber;
-
+    private String email;
+    private String password;
+    private String incomingCall;
+    @Enumerated(value = EnumType.STRING)
+    Role role;
     @ManyToOne
     @JoinColumn(name = "sdid")
     private Doctor supervisorDoctor;
 
-    private String password;
-
-    private String incomingCall;
-
-    public String getPassword() {
-        return password;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    @Override
+    public String getUsername() {
+        return email;
     }
 
-    public String getIncomingCall() {
-        return incomingCall;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public void setIncomingCall(String incomingCall) {
-        this.incomingCall = incomingCall;
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public Doctor getSupervisorDoctor() {
-        return supervisorDoctor;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
-    public void setSupervisorDoctor(Doctor supervisorDoctor) {
-        this.supervisorDoctor = supervisorDoctor;
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
-
-
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-// Getters and setters
 }

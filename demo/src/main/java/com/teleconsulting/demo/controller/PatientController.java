@@ -24,22 +24,22 @@ public class PatientController {
     private PatientService patientService;
     @Autowired
     private PatientRepository patientRepository;
-    @PostMapping("/add")
+    @PostMapping("/add") // Patient
     public String add(@RequestBody Patient patient)
     {
         patientService.savePatient(patient);
         return "New Patient Added";
     }
-    @GetMapping("/patient")
+    @GetMapping("/patient") // Move to Admin
     List<Patient> getAllPatients() {
         return patientRepository.findAll();
     }
-    @GetMapping("/patient/{id}")
+    @GetMapping("/patient/{id}") // Get Patient details by its ID
     Patient getUserById(@PathVariable Long id) {
         return patientRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
-    @DeleteMapping("/patient/{id}")
+    @DeleteMapping("/patient/{id}") // Move to Admin
     String deletePatient(@PathVariable Long id){
         if(!patientRepository.existsById(id)){
             throw new UserNotFoundException(id);
@@ -47,7 +47,7 @@ public class PatientController {
         patientRepository.deleteById(id);
         return  "Patient with id "+id+" has been deleted success.";
     }
-    @PutMapping("/patient/{id}")
+    @PutMapping("/patient/{id}") //
     Patient updatePatient(@RequestBody Patient newPatient, @PathVariable Long id) {
         return patientRepository.findById(id)
                 .map(Patient -> {
@@ -59,29 +59,29 @@ public class PatientController {
                 }).orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    @PostMapping
+    @PostMapping // To create new patient for
     public ResponseEntity<Patient> createPatient(@RequestBody Patient patient) {
         Patient createdPatient = patientService.createPatient(patient);
         return new ResponseEntity<>(createdPatient, HttpStatus.CREATED);
-}
-    @GetMapping(params = "phoneNumber")
+    }
+    @GetMapping(params = "phoneNumber") // Get patient details from phone number
     public ResponseEntity<Patient> getPatientByPhoneNumber(@RequestParam String phoneNumber) {
         Patient patient = patientService.getPatientByPhoneNumber(phoneNumber);
         return ResponseEntity.ok(patient);
-}
+    }
 
-    @GetMapping("/id")
+    @GetMapping("/id") // Get ID from phone number
     public ResponseEntity<Patient> getPatientById(@RequestParam String phoneNumber) {
         Patient patient = patientService.getPatientByPhoneNumber(phoneNumber);
         return ResponseEntity.ok(patient);
 }
 
-    @PutMapping("/{patientId}")
+    @PutMapping("/{patientId}") // Doctor can access
     public ResponseEntity<Patient> updatePatient(@PathVariable Long patientId, @RequestBody Pdetails pdetails) {
         Patient patient = patientService.updatePatient(patientId, pdetails );
         return ResponseEntity.ok(patient);
 }
-    @GetMapping("/{patientId}")
+    @GetMapping("/{patientId}") // Doctor can access
     public ResponseEntity<?> getPatientNameAndAge(@PathVariable Long patientId) {
         try {
             // Retrieve the patient information by patientId

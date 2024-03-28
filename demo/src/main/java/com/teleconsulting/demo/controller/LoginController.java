@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.Map;
 
 public class LoginController {
-    @Autowired
     private DoctorService doctorService;
 
     @PostMapping("/login")
