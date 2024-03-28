@@ -1,10 +1,7 @@
 package com.teleconsulting.demo.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,11 +18,17 @@ public class Doctor implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NonNull
     private String name;
+    @NonNull
     private String gender;
+    @NonNull
     private String phoneNumber;
+    @NonNull
     private String email;
+    @NonNull
     private String password;
+    @NonNull
     private String incomingCall;
     @Enumerated(value = EnumType.STRING)
     Role role;

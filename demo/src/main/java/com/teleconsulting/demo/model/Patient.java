@@ -1,50 +1,64 @@
 package com.teleconsulting.demo.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
-public class Patient {
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Patient implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String gender;
+    @NonNull
     private String phoneNumber;
+    private String email;
+    private String password;
+    @Enumerated(value = EnumType.STRING)
+    Role role;
 
-    public Long getId() {
-        return id;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    @Override
+    public String getPassword() {
+        return password;
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public String getUsername() {
+        return email;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public String getGender() {
-        return gender;
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public void setGender(String gender) {
-        this.gender = gender;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    // Getters and setters
 }
