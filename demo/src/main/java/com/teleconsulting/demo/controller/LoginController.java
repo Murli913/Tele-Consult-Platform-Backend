@@ -12,19 +12,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class LoginController {
     private final PatientService patientService;
-
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
-
     private final UserDetailsServiceImpl userDetailsService;
 
     public LoginController(PatientService patientService, AuthenticationManager authenticationManager, JwtService jwtService, UserDetailsServiceImpl userDetailsService) {
@@ -34,30 +29,21 @@ public class LoginController {
         this.userDetailsService = userDetailsService;
     }
 
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthenticationRequest request) {
-
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword());
         try{
+            System.out.println(authenticationToken);
             authenticationManager.authenticate(authenticationToken);
         }catch (BadCredentialsException e){
             throw new RuntimeException("Invalid Username or Password");
         }
-//        Doctor existingDoctor = doctorService.findByPhoneNumber(doctor.getPhoneNumber());
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        System.out.println(userDetails);
         String token = this.jwtService.generateToken(userDetails);
         AuthenticationResponse response = AuthenticationResponse.builder().token(token).message(userDetails.getUsername()).build();
         return new ResponseEntity<>(response,HttpStatus.OK);
-//        if (existingDoctor != null && existingDoctor.getPassword().equals(doctor.getPassword())) {
-//
-//            Long doctorId = existingDoctor.getId();
-//            return ResponseEntity.ok().body(Map.of("doctorId", doctorId));
-//        } else {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid phone number or password");
-//        }
     }
-
     @PostMapping("/register/patient")
     public ResponseEntity<?> RegisterPatient(@RequestBody Patient patient) {
         return ResponseEntity.ok(patientService.saveNewPatient(patient));

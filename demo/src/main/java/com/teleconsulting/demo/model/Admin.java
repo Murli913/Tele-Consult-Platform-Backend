@@ -9,35 +9,31 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@Entity
 @Data
+@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Doctor implements UserDetails {
+public class Admin implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NonNull
-    private String name;
-    @NonNull
-    private String gender;
-    @NonNull
-    private String phoneNumber;
-    @NonNull
     private String email;
     @NonNull
     private String password;
-    private String incomingCall;
     @Enumerated(value = EnumType.STRING)
     Role role;
-    @ManyToOne
-    @JoinColumn(name = "sdid")
-    private Doctor supervisorDoctor;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
     }
 
     @Override

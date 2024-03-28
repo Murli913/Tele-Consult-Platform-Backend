@@ -43,6 +43,8 @@ public class DoctorServiceImpl implements DoctorService{
         doctor1.setPassword(passwordEncoder.encode(doctor.getPassword()));
         doctor1.setPhoneNumber(doctor.getPhoneNumber());
         doctor1.setRole(Role.valueOf("DOCTOR"));
+        doctor1.setSupervisorDoctor(null);
+        doctor1.setIncomingCall(null);
         doctor1 = doctorRepository.save(doctor1);
         String jwt = jwtService.generateToken(doctor1);
         return new AuthenticationResponse(jwt, "Doctor Registration was Successful");
@@ -72,8 +74,6 @@ public class DoctorServiceImpl implements DoctorService{
             return null; // Handle doctor not found scenario
         }
     }
-
-
     @Override
     public void deleteDoctorById(Long id) {
         if(!doctorRepository.existsById(id)){

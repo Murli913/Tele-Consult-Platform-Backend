@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
-                        req -> req.requestMatchers("/api/**").permitAll()
+                        req -> req.requestMatchers("/auth/**").permitAll()
                                 .anyRequest()
                                 .authenticated()
                 ).exceptionHandling(ex->ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))

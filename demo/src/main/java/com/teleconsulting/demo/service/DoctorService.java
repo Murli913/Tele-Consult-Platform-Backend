@@ -10,17 +10,11 @@ public interface DoctorService{
     public Doctor saveDoctor(Doctor doctor);
 
     AuthenticationResponse saveNewDoctor(Doctor doctor);
-
     List<Doctor> getAllDoctors();
-
     Doctor findByPhoneNumber(String phoneNumber);
     Doctor findById(Long id);
-
     Doctor updateDoctorIncomingCall(String doctorPhoneNumber, String patientPhoneNumber);
-
     void deleteDoctorById(Long id) throws UserNotFoundException;
-
-
     List<Doctor> getDoctorsBySupervisorId(Long supervisorId);
 
 }
