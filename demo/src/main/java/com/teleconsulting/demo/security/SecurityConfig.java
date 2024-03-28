@@ -1,5 +1,6 @@
 package com.teleconsulting.demo.security;
 
+import com.teleconsulting.demo.filter.JwtAuthenticationEntryPoint;
 import com.teleconsulting.demo.filter.JwtAuthenticationFilter;
 import com.teleconsulting.demo.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
@@ -21,20 +22,25 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsServiceImp;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(UserDetailsServiceImpl userDetailsServiceImp, JwtAuthenticationFilter jwtAuthenticationFilter) {
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    public SecurityConfig(UserDetailsServiceImpl userDetailsServiceImp, JwtAuthenticationFilter jwtAuthenticationFilter, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
         this.userDetailsServiceImp = userDetailsServiceImp;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         req -> req.requestMatchers("/api/**").permitAll()
                                 .anyRequest()
                                 .authenticated()
-                ).userDetailsService(userDetailsServiceImp)
+                ).exceptionHandling(ex->ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .userDetailsService(userDetailsServiceImp)
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
