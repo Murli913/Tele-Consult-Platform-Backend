@@ -74,6 +74,23 @@ public class DoctorServiceImpl implements DoctorService{
             return null; // Handle doctor not found scenario
         }
     }
+
+    @Override
+    public Doctor updateDoctor(Long id, Doctor updatedDoctor) {
+        Doctor existingDoctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Doctor not found with id: " + id));
+        System.out.println("\nUpdated DOc"+updatedDoctor+"\n");
+        existingDoctor.setName(updatedDoctor.getName());
+        existingDoctor.setGender(updatedDoctor.getGender());
+        existingDoctor.setPhoneNumber(updatedDoctor.getPhoneNumber());
+        existingDoctor.setEmail(updatedDoctor.getEmail());
+        existingDoctor.setRole(updatedDoctor.getRole());
+        existingDoctor.setSupervisorDoctor(updatedDoctor.getSupervisorDoctor());
+        doctorRepository.save(existingDoctor);
+        // Save the updated doctor entity
+        return existingDoctor;
+    }
+
     @Override
     public void deleteDoctorById(Long id) {
         if(!doctorRepository.existsById(id)){

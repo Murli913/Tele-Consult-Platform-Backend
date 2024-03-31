@@ -19,6 +19,10 @@ public class JwtService {
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("roles", String.class));
+    }
+
     public boolean isValid(String token, UserDetails user) {
         String username = extractUsername(token);
         return (username.equals(user.getUsername())) && !isTokenExpired(token);
@@ -52,7 +56,7 @@ public class JwtService {
         List<String> role = authorities.stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
-
+        System.out.println("\nROles is :::: "+role);
         return Jwts
                 .builder()
                 .subject(userDetails.getUsername())

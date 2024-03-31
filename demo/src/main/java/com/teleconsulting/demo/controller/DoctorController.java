@@ -1,11 +1,13 @@
 package com.teleconsulting.demo.controller;
 
+import com.teleconsulting.demo.dto.Pdetails;
 import com.teleconsulting.demo.exception.UserNotFoundException;
 import com.teleconsulting.demo.model.Doctor;
+import com.teleconsulting.demo.model.Patient;
 import com.teleconsulting.demo.repository.DoctorRepository;
 import com.teleconsulting.demo.service.DoctorService;
+import com.teleconsulting.demo.service.PatientService;
 import com.teleconsulting.demo.service.RoomJoinRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +20,16 @@ import java.util.*;
 @RestController
 @RequestMapping("/doctor")
 public class DoctorController {
-    @Autowired
-    private DoctorService doctorService;
+    private final DoctorService doctorService;
+    private final DoctorRepository doctorRepository;
+    private final PatientService patientService;
 
-    @Autowired
-    private DoctorRepository doctorRepository;
+    public DoctorController(DoctorService doctorService, DoctorRepository doctorRepository, PatientService patientService) {
+        this.doctorService = doctorService;
+        this.doctorRepository = doctorRepository;
+        this.patientService = patientService;
+    }
+
     @GetMapping("/supervisor/{supervisorId}") // List of Doc under Sr Doc
     public ResponseEntity<List<Doctor>> getDoctorsBySupervisorId(@PathVariable("supervisorId") Long supervisorId) {
         List<Doctor> doctors = doctorService.getDoctorsBySupervisorId(supervisorId);
@@ -31,44 +38,28 @@ public class DoctorController {
 
 
 
-    @PostMapping("/add") // Move to Admin
-    public String add(@RequestBody Doctor doctor)
-    {
-        doctorService.saveDoctor(doctor);
-        return "New Doctor Added";
-    }
-
-    // "localhost:8081/doctor/"
-    @GetMapping("/getdoctor") // Move to Admin
-    List<Doctor> getAllDoctors() {
-        return doctorService.getAllDoctors();
-    }
-    @DeleteMapping("/doctor/{id}") // Move to Admin
-    String deleteDoctor(@PathVariable Long id){
-        try{
-            doctorService.deleteDoctorById(id);
-            return  "Doctor with id "+id+" has been deleted success.";
-        }catch (UserNotFoundException e){
-            return "Doctor not found with id"+id;
-        }
-
-    }
+//    @PostMapping("/add") // Move to Admin
+//    public String add(@RequestBody Doctor doctor)
+//    {
+//        doctorService.saveDoctor(doctor);
+//        return "New Doctor Added";
+//    }
     @GetMapping("/doctor/{id}") // Return Doc details from its id
     Doctor getUserById(@PathVariable Long id) {
         return doctorRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
-    @PutMapping("/doctors/{id}") // Move to Admin
-    Doctor updateDoctor(@RequestBody Doctor newDoctor, @PathVariable Long id) {
-        return doctorRepository.findById(id)
-                .map(Doctor -> {
-                    Doctor.setGender(newDoctor.getGender());
-                    Doctor.setName(newDoctor.getName());
-                    Doctor.setPhoneNumber(newDoctor.getPhoneNumber());
-
-                    return doctorRepository.save(Doctor);
-                }).orElseThrow(() -> new UserNotFoundException(id));
-    }
+//    @PutMapping("/doctors/{id}") // Move to Admin
+//    Doctor updateDoctor(@RequestBody Doctor newDoctor, @PathVariable Long id) {
+//        return doctorRepository.findById(id)
+//                .map(Doctor -> {
+//                    Doctor.setGender(newDoctor.getGender());
+//                    Doctor.setName(newDoctor.getName());
+//                    Doctor.setPhoneNumber(newDoctor.getPhoneNumber());
+//
+//                    return doctorRepository.save(Doctor);
+//                }).orElseThrow(() -> new UserNotFoundException(id));
+//    }
 
     @PostMapping("/join-room") // Update incoming call
     public ResponseEntity<?> joinRoom(@RequestBody RoomJoinRequest request) {
@@ -111,6 +102,34 @@ public class DoctorController {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
-}
-}
+        }
+    }
+    @PutMapping("/{patientId}") // Doctor can access
+    public ResponseEntity<Patient> updatePatient(@PathVariable Long patientId, @RequestBody Pdetails pdetails) {
+        Patient patient = patientService.updatePatient(patientId, pdetails );
+        return ResponseEntity.ok(patient);
+    }
+    @GetMapping("/{patientId}") // Doctor can access
+    public ResponseEntity<?> getPatientNameAndAge(@PathVariable Long patientId) {
+        try {
+            // Retrieve the patient information by patientId
+            Patient patient = patientService.findById(patientId);
+
+            // Check if the patient exists
+            if (patient == null) {
+                return ResponseEntity.notFound().build(); // Return 404 Not Found if patient is not found
+            }
+
+            // Create a DTO (Data Transfer Object) to send only name and age
+            Map<String, Object> patientInfo = new HashMap<>();
+            patientInfo.put("name", patient.getName());
+            patientInfo.put("gender", patient.getGender());
+
+            // Return the patient name and gender in the response body
+            return ResponseEntity.ok(patientInfo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving patient information");
+
+        }
+    }
 }

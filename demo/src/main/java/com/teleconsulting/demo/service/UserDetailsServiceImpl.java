@@ -28,8 +28,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         System.out.println("\nUsername is :::::: "+username+"\n");
         Doctor doctor = doctorRepository.findByEmail(username).orElse(null);
-
         if(doctor != null){
+            System.out.println("\n\n"+doctor);
             return doctor;
         }
         Patient patient = patientRepository.findByEmail(username).orElse(null);
