@@ -5,7 +5,6 @@ import com.teleconsulting.demo.model.AuthenticationResponse;
 import com.teleconsulting.demo.model.Doctor;
 import com.teleconsulting.demo.model.Role;
 import com.teleconsulting.demo.repository.DoctorRepository;
-import com.teleconsulting.demo.security.JwtService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,11 +16,9 @@ public class DoctorServiceImpl implements DoctorService{
 
     private final DoctorRepository doctorRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final JwtService jwtService;
 
-    public DoctorServiceImpl(DoctorRepository doctorRepository, JwtService jwtService) {
+    public DoctorServiceImpl(DoctorRepository doctorRepository) {
         this.doctorRepository = doctorRepository;
-        this.jwtService = jwtService;
     }
 
     @Override
@@ -35,19 +32,27 @@ public class DoctorServiceImpl implements DoctorService{
     }
     @Override
     public AuthenticationResponse saveNewDoctor(Doctor doctor) {
-        System.out.println("\n Add New Doctor "+doctor+"\n");
-        Doctor doctor1 = new Doctor();
-        doctor1.setName(doctor.getName());
-        doctor1.setEmail(doctor.getUsername());
-        doctor1.setGender(doctor.getGender());
-        doctor1.setPassword(passwordEncoder.encode(doctor.getPassword()));
-        doctor1.setPhoneNumber(doctor.getPhoneNumber());
-        doctor1.setRole(Role.valueOf("DOCTOR"));
-        doctor1.setSupervisorDoctor(null);
-        doctor1.setIncomingCall(null);
-        doctor1 = doctorRepository.save(doctor1);
-        String jwt = jwtService.generateToken(doctor1);
-        return new AuthenticationResponse(jwt, "Doctor Registration was Successful");
+        Doctor doctor2 = new Doctor();
+        doctor2 = doctorRepository.findByEmail(doctor.getEmail()).orElse(null);
+        if(doctor2 == null)
+        {
+            Doctor doctor1 = new Doctor();
+            doctor1.setName(doctor.getName());
+            doctor1.setEmail(doctor.getEmail());
+            doctor1.setGender(doctor.getGender());
+            doctor1.setPassword(passwordEncoder.encode(doctor.getPassword()));
+            doctor1.setPhoneNumber(doctor.getPhoneNumber());
+            doctor1.setRole(Role.valueOf(Role.DOCTOR.toString()));
+            if (doctor.getSupervisorDoctor() != null && doctor.getSupervisorDoctor().getId() != null) {
+                Doctor supervisorDoctor = doctorRepository.findById(doctor.getSupervisorDoctor().getId()).orElse(null);
+                doctor1.setSupervisorDoctor(supervisorDoctor);
+            }
+            doctor1.setIncomingCall(null);
+            doctorRepository.save(doctor1);
+            return new AuthenticationResponse(null, "Doctor Registration was Successful");
+        }
+        else
+            return new AuthenticationResponse(null, "Email ID already exist!!");
     }
 
     @Override
@@ -84,7 +89,8 @@ public class DoctorServiceImpl implements DoctorService{
         existingDoctor.setGender(updatedDoctor.getGender());
         existingDoctor.setPhoneNumber(updatedDoctor.getPhoneNumber());
         existingDoctor.setEmail(updatedDoctor.getEmail());
-        existingDoctor.setRole(updatedDoctor.getRole());
+        existingDoctor.setPassword(passwordEncoder.encode(updatedDoctor.getPassword()));
+        existingDoctor.setRole(Role.valueOf(Role.DOCTOR.toString()));
         existingDoctor.setSupervisorDoctor(updatedDoctor.getSupervisorDoctor());
         doctorRepository.save(existingDoctor);
         // Save the updated doctor entity

@@ -19,7 +19,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/doctor")
-public class DoctorController {
+public class    DoctorController {
     private final DoctorService doctorService;
     private final DoctorRepository doctorRepository;
     private final PatientService patientService;
@@ -29,45 +29,23 @@ public class DoctorController {
         this.doctorRepository = doctorRepository;
         this.patientService = patientService;
     }
-
     @GetMapping("/supervisor/{supervisorId}") // List of Doc under Sr Doc
     public ResponseEntity<List<Doctor>> getDoctorsBySupervisorId(@PathVariable("supervisorId") Long supervisorId) {
         List<Doctor> doctors = doctorService.getDoctorsBySupervisorId(supervisorId);
         return new ResponseEntity<>(doctors, HttpStatus.OK);
     }
-
-
-
-//    @PostMapping("/add") // Move to Admin
-//    public String add(@RequestBody Doctor doctor)
-//    {
-//        doctorService.saveDoctor(doctor);
-//        return "New Doctor Added";
-//    }
     @GetMapping("/doctor/{id}") // Return Doc details from its id
     Doctor getUserById(@PathVariable Long id) {
         return doctorRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
-//    @PutMapping("/doctors/{id}") // Move to Admin
-//    Doctor updateDoctor(@RequestBody Doctor newDoctor, @PathVariable Long id) {
-//        return doctorRepository.findById(id)
-//                .map(Doctor -> {
-//                    Doctor.setGender(newDoctor.getGender());
-//                    Doctor.setName(newDoctor.getName());
-//                    Doctor.setPhoneNumber(newDoctor.getPhoneNumber());
-//
-//                    return doctorRepository.save(Doctor);
-//                }).orElseThrow(() -> new UserNotFoundException(id));
-//    }
-
     @PostMapping("/join-room") // Update incoming call
     public ResponseEntity<?> joinRoom(@RequestBody RoomJoinRequest request) {
         Doctor doctor = doctorService.findByPhoneNumber(request.getDoctorPhoneNumber());
         if (doctor != null) {
             doctor.setIncomingCall(request.getPatientPhoneNumber());
             doctorService.saveDoctor(doctor);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok("Incoming Call status updated");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
         }
