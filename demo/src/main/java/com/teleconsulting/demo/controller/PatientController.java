@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @CrossOrigin("http://localhost:3000")
 @RequestMapping("/patient")
@@ -57,5 +59,16 @@ public class PatientController {
     public ResponseEntity<Patient> getPatientById(@RequestParam String phoneNumber) {
         Patient patient = patientService.getPatientByPhoneNumber(phoneNumber);
         return ResponseEntity.ok(patient);
+    }
+
+    @GetMapping("/patient-details/{email}")
+    public ResponseEntity<?> getUserDetailsByEmail(@PathVariable String email) {
+        System.out.println("\n Inside getUserFrom Email \n" + email);
+        Optional<Patient> userDetails = patientService.getUserByEmail(email);
+        if (userDetails.isPresent()) {
+            return ResponseEntity.ok(userDetails.get());
+        } else {
+            return ResponseEntity.notFound().build(); // User not found
+        }
     }
 }

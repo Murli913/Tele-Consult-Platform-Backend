@@ -9,6 +9,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class PatientServiceImpl implements PatientService{
     private  final PatientRepository patientRepository;
@@ -64,5 +66,11 @@ public class PatientServiceImpl implements PatientService{
         }
         else
             return new AuthenticationResponse(null, "Patient Email ID already exist");
+    }
+
+    @Override
+    public Optional<Patient> getUserByEmail(String email) {
+        System.out.println("\nInside impl "+ email);
+        return patientRepository.findByEmail(email);
     }
 }
