@@ -1,7 +1,7 @@
 package com.teleconsulting.demo.controller;
 
-import com.teleconsulting.demo.model.AuthenticationRequest;
-import com.teleconsulting.demo.model.AuthenticationResponse;
+import com.teleconsulting.demo.dto.AuthenticationRequest;
+import com.teleconsulting.demo.dto.AuthenticationResponse;
 import com.teleconsulting.demo.model.Patient;
 import com.teleconsulting.demo.security.JwtService;
 import com.teleconsulting.demo.service.PatientService;
@@ -33,16 +33,92 @@ public class LoginController {
     public ResponseEntity<?> login(@RequestBody AuthenticationRequest request) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword());
         try{
-            System.out.println(authenticationToken);
+            System.out.println(authenticationToken.isAuthenticated());
+            System.out.println("Authentication Token is "+authenticationToken);
             authenticationManager.authenticate(authenticationToken);
         }catch (BadCredentialsException e){
             throw new RuntimeException("Invalid Username or Password");
         }
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
-        System.out.println(userDetails);
-        String token = this.jwtService.generateToken(userDetails);
-        AuthenticationResponse response = AuthenticationResponse.builder().token(token).message(userDetails.getUsername()).build();
-        return new ResponseEntity<>(response,HttpStatus.OK);
+        if("[ROLE_USER]".equals(userDetails.getAuthorities().toString()))
+        {
+            System.out.println("UserDetails is "+userDetails);
+            String token = this.jwtService.generateToken(userDetails);
+            AuthenticationResponse response = AuthenticationResponse.builder().token(token).message(userDetails.getUsername()).build();
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        }
+        else
+        {
+            AuthenticationResponse response = AuthenticationResponse.builder().token(null).message("You are not authorised !!").build();
+            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        }
+    }
+    @PostMapping("/doc/login")
+    public ResponseEntity<?> docLogin(@RequestBody AuthenticationRequest request) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword());
+        try{
+            authenticationManager.authenticate(authenticationToken);
+        }catch (BadCredentialsException e){
+            throw new RuntimeException("Invalid Username or Password");
+        }
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        if("[ROLE_DOCTOR]".equals(userDetails.getAuthorities().toString()))
+        {
+            String token = this.jwtService.generateToken(userDetails);
+            AuthenticationResponse response = AuthenticationResponse.builder().token(token).message(userDetails.getUsername()).build();
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        }
+        else
+        {
+            AuthenticationResponse response = AuthenticationResponse.builder().token(null).message("You are not authorised !!").build();
+            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        }
+    }
+    @PostMapping("/admin/login")
+    public ResponseEntity<?> adminLogin(@RequestBody AuthenticationRequest request) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword());
+        try{
+            authenticationManager.authenticate(authenticationToken);
+        }catch (BadCredentialsException e){
+            throw new RuntimeException("Invalid Username or Password");
+        }
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        if("[ROLE_ADMIN]".equals(userDetails.getAuthorities().toString()))
+        {
+            String token = this.jwtService.generateToken(userDetails);
+            AuthenticationResponse response = AuthenticationResponse.builder().token(token).message(userDetails.getUsername()).build();
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        }
+        else
+        {
+            AuthenticationResponse response = AuthenticationResponse.builder().token(null).message("You are not authorised !!").build();
+            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        }
+
+    }
+    @PostMapping("/srdoc/login")
+    public ResponseEntity<?> srDocLogin(@RequestBody AuthenticationRequest request) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword());
+        try{
+            System.out.println(authenticationToken.isAuthenticated());
+            System.out.println("Authentication Token is "+authenticationToken);
+            authenticationManager.authenticate(authenticationToken);
+        }catch (BadCredentialsException e){
+            throw new RuntimeException("Invalid Username or Password");
+        }
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        System.out.println("UserDetails is "+userDetails);
+        System.out.println("Role is : "+userDetails.getAuthorities().toString());
+        if("[ROLE_SRDOC]".equals(userDetails.getAuthorities().toString()))
+        {
+            String token = this.jwtService.generateToken(userDetails);
+            AuthenticationResponse response = AuthenticationResponse.builder().token(token).message(userDetails.getUsername()).build();
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        }
+        else {
+            AuthenticationResponse response = AuthenticationResponse.builder().token(null).message("You are not authorised !!").build();
+            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        }
     }
     @PostMapping("/register/patient")
     public ResponseEntity<?> RegisterPatient(@RequestBody Patient patient) {

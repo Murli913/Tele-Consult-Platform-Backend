@@ -29,6 +29,7 @@ public class Doctor {
     Role role;
     @ManyToOne
     @JoinColumn(name = "sdid")
-    @JsonIgnore
     private Doctor supervisorDoctor;
+    private int totalRating;
+    private int appointmentCount;
 }

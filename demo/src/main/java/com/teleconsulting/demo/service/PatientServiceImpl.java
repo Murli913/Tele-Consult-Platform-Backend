@@ -1,7 +1,7 @@
 package com.teleconsulting.demo.service;
 
 import com.teleconsulting.demo.dto.Pdetails;
-import com.teleconsulting.demo.model.AuthenticationResponse;
+import com.teleconsulting.demo.dto.AuthenticationResponse;
 import com.teleconsulting.demo.model.Patient;
 import com.teleconsulting.demo.model.Role;
 import com.teleconsulting.demo.repository.PatientRepository;

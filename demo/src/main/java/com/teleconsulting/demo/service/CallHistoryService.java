@@ -1,8 +1,8 @@
 package com.teleconsulting.demo.service;
 
 import com.teleconsulting.demo.model.CallHistory;
+import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -23,5 +23,9 @@ public interface CallHistoryService {
     void updateendtime(Long id, LocalTime endtime);
     Long getPatientIdFromCallHistory(Long id);
     List<CallHistory> getCallHistoryForDoctorsWithSdid(Long sdid);
+    ResponseEntity<List<String>> getDoctorTimeSlots(Long doctorId, String date);
 
+    List<Object> getUpAptPat(Long patientId);
+
+    List<Object> getPastAptPat(Long patientId);
 }
