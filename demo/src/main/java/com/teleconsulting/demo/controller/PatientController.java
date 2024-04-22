@@ -106,11 +106,11 @@ public class PatientController {
         System.out.println("\n Inside past-apt \n");
         return callHistoryService.getPastAptPat(patientId);
     }
-    @PostMapping("/rateDoc")
-    public void updateDocRating(@RequestBody DoctorRatings doctorRating) {
-        System.out.println("\nInside Patient Controller calling update Rating\n");
-        doctorService.updateRating(doctorRating.getId(),doctorRating.getRating());
-}
+//    @PostMapping("/rateDoc")
+//    public void updateDocRating(@RequestBody DoctorRatings doctorRating) {
+//        System.out.println("\nInside Patient Controller calling update Rating\n");
+//        doctorService.updateRating(doctorRating.getId(),doctorRating.getRating());
+//}
     //murli
     @GetMapping("/all")
     public ResponseEntity<List<Patient>> getAllPatients() {
