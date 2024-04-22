@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Data
 @Builder
@@ -31,4 +33,7 @@ public class Doctor {
     @JoinColumn(name = "sdid")
     @JsonIgnore
     private Doctor supervisorDoctor;
+    private int totalRating;
+    private int appointmentCount;
+
 }

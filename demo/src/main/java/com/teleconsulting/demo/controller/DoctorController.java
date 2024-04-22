@@ -19,6 +19,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/doctor")
+@CrossOrigin("http://localhost:5173")
 public class    DoctorController {
     private final DoctorService doctorService;
     private final DoctorRepository doctorRepository;
@@ -61,7 +62,7 @@ public class    DoctorController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
         }
     }
-    @GetMapping("/{doctorId}") // Return Doc phone number by its ID
+    @GetMapping("/phone/{doctorId}") // Return Doc phone number by its ID
     public ResponseEntity<String> getDoctorById(@PathVariable Long doctorId) {
         Doctor doctor = doctorService.findById(doctorId);
         if (doctor != null) {
@@ -87,7 +88,7 @@ public class    DoctorController {
         Patient patient = patientService.updatePatient(patientId, pdetails );
         return ResponseEntity.ok(patient);
     }
-    @GetMapping("/{patientId}") // Doctor can access
+    @GetMapping("/pt/{patientId}") // Doctor can access
     public ResponseEntity<?> getPatientNameAndAge(@PathVariable Long patientId) {
         try {
             // Retrieve the patient information by patientId
@@ -110,4 +111,117 @@ public class    DoctorController {
 
         }
     }
+    //aziz
+    @GetMapping("/doctor-details/{email}")
+    public ResponseEntity<?> getUserDetailsByEmail(@PathVariable String email) {
+        System.out.println("\n Inside getUserFrom Email \n" + email);
+        Optional<Doctor> userDetails = doctorService.getUserByEmail(email);
+        if (userDetails.isPresent()) {
+            return ResponseEntity.ok(userDetails.get());
+        } else {
+            return ResponseEntity.notFound().build(); // User not found
+        }
+    }
+
+    @GetMapping("/fetchname/{doctorid}")
+    public ResponseEntity<?> getName(@PathVariable Long doctorid) {
+        Doctor doctor = doctorService.findById(doctorid);
+        if (doctor != null) {
+            return ResponseEntity.ok(doctor.getName());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
+        }
+    }
+
+    @GetMapping("/id")
+    public ResponseEntity<Patient> getPatientById(@RequestParam String phoneNumber) {
+        Patient patient = patientService.getPatientByPhoneNumber(phoneNumber);
+        return ResponseEntity.ok(patient);
+    }
+
+
+    @GetMapping(params = "phoneNumber") // Get patient details from phone number
+    public ResponseEntity<Patient> getPatientByPhoneNumber(@RequestParam String phoneNumber) {
+        Patient patient = patientService.getPatientByPhoneNumber(phoneNumber);
+        return ResponseEntity.ok(patient);
+    }
+    @GetMapping("/alldoctors")
+    public List<Doctor> getAllDoctors() {
+        return doctorService.getAllDoctors();
+    }
+
+    @PostMapping("/addpt")
+    public ResponseEntity<Patient> createPatient(@RequestBody Patient patient) {
+        Patient createdPatient = patientService.createPatient(patient);
+        return new ResponseEntity<>(createdPatient, HttpStatus.CREATED);
+}
+
+
+
+    //murli
+    @GetMapping("/all")
+    public ResponseEntity<List<Doctor>> getAllDoctorsExceptPassword() {
+        List<Doctor> doctors = doctorService.getAllDoctorsExceptPassword();
+        return new ResponseEntity<>(doctors, HttpStatus.OK);
+    }
+    //murli
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteDoctor(@PathVariable Long id) {
+        try {
+            doctorService.deleteDoctorById(id);
+            return ResponseEntity.ok("Doctor with ID " + id + " has been deleted.");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found with ID: " + id);
+        }
+    }
+
+    //murli
+    @GetMapping("/count")
+    public ResponseEntity<Long> countDoctors() {
+        Long count = doctorService.countDoctors();
+        return ResponseEntity.ok(count);
+    }
+    //murli
+    @GetMapping("/under-senior/{seniorDoctorId}")
+    public ResponseEntity<List<Doctor>> getDoctorsUnderSeniorDoctor(@PathVariable("seniorDoctorId") Long seniorDoctorId) {
+        List<Doctor> doctors = doctorService.getDoctorsUnderSeniorDoctor(seniorDoctorId);
+        return new ResponseEntity<>(doctors, HttpStatus.OK);
+    }
+    //murli
+    @PutMapping("/updateDoctor/{id}")
+    public ResponseEntity<Doctor> updateDoctor(@PathVariable Long id, @RequestBody Doctor updatedDoctor) {
+        try {
+            Doctor doctor = doctorService.updateDoctors(id, updatedDoctor);
+            return ResponseEntity.ok(doctor);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    //murli
+    @PutMapping("/{doctorId}/update-sdid/{newSdid}")
+    public ResponseEntity<?> updateDoctorSdid(@PathVariable Long doctorId, @PathVariable Long newSdid) {
+        doctorService.updateDoctorSdid(doctorId, newSdid);
+        return ResponseEntity.ok("Supervisor Doctor ID updated successfully");
+    }
+//murli
+@GetMapping("/by-email/{email}")
+public ResponseEntity<Long> getDoctorIdByEmail(@PathVariable String email) {
+    Doctor doctor = doctorService.findByEmail(email);
+    if (doctor != null) {
+        return ResponseEntity.ok(doctor.getId());
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+}
+
+//murli
+@GetMapping("/{doctorId}/details")
+public ResponseEntity<?> getDoctorNameAndPhoneNumber(@PathVariable Long doctorId) {
+    Doctor doctor = doctorService.getDoctorNameAndPhoneNumber(doctorId);
+    if (doctor != null) {
+        return ResponseEntity.ok(doctor);
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+}
 }

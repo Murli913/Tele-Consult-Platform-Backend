@@ -1,5 +1,6 @@
 package com.teleconsulting.demo.controller;
 
+import com.teleconsulting.demo.dto.RegDoc;
 import com.teleconsulting.demo.exception.UserNotFoundException;
 import com.teleconsulting.demo.model.Doctor;
 import com.teleconsulting.demo.model.Patient;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
+@CrossOrigin("http://localhost:5173")
 public class AdminController {
     private final PatientRepository patientRepository;
     private final DoctorService doctorService;
@@ -22,9 +24,14 @@ public class AdminController {
     }
 
     @PostMapping("/register/doctor")
-    public ResponseEntity<?> RegisterDoctor(@RequestBody Doctor doctor) {
-        return ResponseEntity.ok(doctorService.saveNewDoctor(doctor));
+    public ResponseEntity<?> RegisterDoctor(@RequestBody RegDoc regDoc) {
+        System.out.println("\nInside Admin Controller Register Doc\n");
+        return ResponseEntity.ok(doctorService.saveNewDoctor(regDoc));
     }
+    @GetMapping("/getSrDoctors")
+    List<Doctor> getAllSrDoctors(){
+        return doctorService.getAllSrDoctors();
+}
     @GetMapping("/getdoctors")
     List<Doctor> getAllDoctors() {
         return doctorService.getAllDoctors();

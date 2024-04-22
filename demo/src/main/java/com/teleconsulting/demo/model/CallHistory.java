@@ -22,6 +22,25 @@ public class CallHistory {
     private LocalDate callDate;
     private LocalTime callTime;
     private String prescription;
+    private String reason;
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public Float getCallRating() {
+        return callRating;
+    }
+
+    public void setCallRating(Float callRating) {
+        this.callRating = callRating;
+    }
+
+    private Float callRating;
 
 private LocalTime endTime;
 

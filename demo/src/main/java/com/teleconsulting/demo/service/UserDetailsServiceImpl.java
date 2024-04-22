@@ -2,6 +2,7 @@ package com.teleconsulting.demo.service;
 
 import com.teleconsulting.demo.model.Doctor;
 import com.teleconsulting.demo.model.Patient;
+import com.teleconsulting.demo.model.Role;
 import com.teleconsulting.demo.repository.DoctorRepository;
 import com.teleconsulting.demo.repository.PatientRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if(username.equals("admin@gmail.com")) {
             return org.springframework.security.core.userdetails.User.withUsername(username)
                     .password(passwordEncoder.encode("password"))
-                    .roles("ADMIN")
+                    .roles(String.valueOf(Role.valueOf(Role.ADMIN.toString())))
                     .build();
         }
         Doctor doctor = doctorRepository.findByEmail(username).orElse(null);
