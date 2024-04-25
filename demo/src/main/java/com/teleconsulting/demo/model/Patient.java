@@ -20,4 +20,5 @@ public class Patient {
     private String password;
     @Enumerated(value = EnumType.STRING)
     Role role;
+    private boolean deleteFlag;
 }

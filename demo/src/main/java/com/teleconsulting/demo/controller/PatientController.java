@@ -33,13 +33,6 @@ public class PatientController {
         this.doctorService = doctorService;
         this.callHistoryService = callHistoryService;
     }
-//    @PostMapping("/add") // Patient
-//    public String add(@RequestBody Patient patient)
-//    {
-//        patientService.savePatient(patient);
-//        return "New Patient Added";
-//    }
-
     @GetMapping("/patient/{id}") // Get Patient details by its ID
     Patient getUserById(@PathVariable Long id) {
         return patientRepository.findById(id)

@@ -5,6 +5,7 @@ import com.teleconsulting.demo.dto.AuthenticationResponse;
 import com.teleconsulting.demo.model.Patient;
 import com.teleconsulting.demo.model.Role;
 import com.teleconsulting.demo.repository.PatientRepository;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -99,24 +101,25 @@ public class PatientServiceImpl implements PatientService{
     public AuthenticationResponse saveNewPatient(Patient patient){
         Patient patient1 = patientRepository.findByEmail(patient.getEmail()).orElse(null);
         if(patient1 == null) {
-            patient1.setPassword(passwordEncoder.encode(patient.getPassword()));
-            patient1.setEmail(patient.getEmail());
-            patient1.setName(patient.getName());
-            patient1.setGender(patient.getGender());
+            Patient patient2 = new Patient();
+            patient2.setPassword(passwordEncoder.encode(patient.getPassword()));
+            patient2.setEmail(patient.getEmail());
+            patient2.setName(patient.getName());
+            patient2.setGender(patient.getGender());
             try{
-                patient1.setPhoneNumber(encrypt(patient.getPhoneNumber()));
+                patient2.setPhoneNumber(encrypt(patient.getPhoneNumber()));
             }catch(Exception e){
                 System.out.println("\nException in SaveNewPatient "+e+"\n");
             }
-            patient1.setRole(Role.valueOf(Role.USER.toString()));
-            patientRepository.save(patient1);
+            patient2.setRole(Role.valueOf(Role.USER.toString()));
+            patient2.setDeleteFlag(false);
+            patientRepository.save(patient2);
             return new AuthenticationResponse(null, "User Registration was Successful!!");
         }
         else
             return new AuthenticationResponse(null, "Patient Email ID already exist");
 
     }
-
     //murli
     @Override
     public Long countPatients() {
@@ -137,5 +140,33 @@ public class PatientServiceImpl implements PatientService{
             }
         }
         return Optional.ofNullable(patient);
-}
+    }
+    @Override
+    public List<Patient> getALLPatient() {
+        return patientRepository.findAllPatient();
+    }
+
+    @Override
+    public void deletePatient(Long id) {
+        Patient patient = patientRepository.findById(id).orElse(null);
+        if(patient != null) {
+            patient.setDeleteFlag(true);
+            patientRepository.save(patient);
+        }
+    }
+
+    @Override
+    public List<Patient> findAll() {
+        List<Patient> patientList = patientRepository.findAll();
+        for(Patient patient : patientList) {
+            String temp = patient.getPhoneNumber();
+            try{
+                patient.setPhoneNumber(decrypt(temp));
+            }catch(Exception e)
+            {
+                System.out.println("\nException in PatientServiceImple findById\n"+e);
+            }
+        }
+        return patientList;
+    }
 }

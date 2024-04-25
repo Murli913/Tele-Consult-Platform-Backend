@@ -22,7 +22,7 @@ public class CallHistoryServiceImpl implements CallHistoryService{
 
     @Override
     public List<CallHistory> getCallHistoryForDoctorsWithSdid(Long sdid) {
-        List<Long> doctorIds = doctorService.getDoctorsBySupervisorId(sdid).stream()
+        List<Long> doctorIds = doctorService.getDoctorsUnderSeniorDoctor(sdid).stream()
                 .map(Doctor::getId)
                 .collect(Collectors.toList());
         return callHistoryRepository.findByDoctorIdIn(doctorIds);

@@ -15,30 +15,25 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.*;
 
-
-
 @RestController
 @RequestMapping("/doctor")
 @CrossOrigin("http://localhost:5173")
 public class    DoctorController {
     private final DoctorService doctorService;
-    private final DoctorRepository doctorRepository;
     private final PatientService patientService;
 
-    public DoctorController(DoctorService doctorService, DoctorRepository doctorRepository, PatientService patientService) {
+    public DoctorController(DoctorService doctorService, PatientService patientService) {
         this.doctorService = doctorService;
-        this.doctorRepository = doctorRepository;
         this.patientService = patientService;
     }
     @GetMapping("/supervisor/{supervisorId}") // List of Doc under Sr Doc
     public ResponseEntity<List<Doctor>> getDoctorsBySupervisorId(@PathVariable("supervisorId") Long supervisorId) {
-        List<Doctor> doctors = doctorService.getDoctorsBySupervisorId(supervisorId);
+        List<Doctor> doctors = doctorService.getDoctorsUnderSeniorDoctor(supervisorId);
         return new ResponseEntity<>(doctors, HttpStatus.OK);
     }
-    @GetMapping("/doctor/{id}") // Return Doc details from its id
+    @GetMapping("/doctor/{id}") //  Return Doc details from its id
     Doctor getUserById(@PathVariable Long id) {
-        return doctorRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+        return doctorService.getById(id);
     }
     @PostMapping("/join-room") // Update incoming call
     public ResponseEntity<?> joinRoom(@RequestBody RoomJoinRequest request) {
@@ -51,12 +46,10 @@ public class    DoctorController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
         }
     }
-
-
     @GetMapping("/{doctorId}/incoming-call") // Return Incoming call
     public ResponseEntity<?> getIncomingCall(@PathVariable Long doctorId) {
         Doctor doctor = doctorService.findById(doctorId);
-        if (doctor != null) {
+        if (doctor != null && !doctor.isDeleteFlag()) {
             return ResponseEntity.ok(doctor.getIncomingCall());
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
@@ -65,7 +58,7 @@ public class    DoctorController {
     @GetMapping("/phone/{doctorId}") // Return Doc phone number by its ID
     public ResponseEntity<String> getDoctorById(@PathVariable Long doctorId) {
         Doctor doctor = doctorService.findById(doctorId);
-        if (doctor != null) {
+        if (doctor != null && !doctor.isDeleteFlag()) {
             return ResponseEntity.ok(doctor.getPhoneNumber());
         } else {
             return ResponseEntity.notFound().build();
@@ -75,7 +68,7 @@ public class    DoctorController {
     @PutMapping("/{doctorId}/reject-call") // Update Incoming Call to Null after end call
     public ResponseEntity<?> rejectCall(@PathVariable("doctorId") Long doctorId) {
         Doctor doctor = doctorService.findById(doctorId);
-        if (doctor != null) {
+        if (doctor != null && !doctor.isDeleteFlag()) {
             doctor.setIncomingCall(null);
             doctorService.saveDoctor(doctor);
             return ResponseEntity.ok().build();
@@ -86,7 +79,12 @@ public class    DoctorController {
     @PutMapping("/{patientId}") // Doctor can access
     public ResponseEntity<Patient> updatePatient(@PathVariable Long patientId, @RequestBody Pdetails pdetails) {
         Patient patient = patientService.updatePatient(patientId, pdetails );
-        return ResponseEntity.ok(patient);
+        if(!patient.isDeleteFlag()) {
+            return ResponseEntity.ok(patient);
+        }
+        else {
+            return ResponseEntity.notFound().build();
+        }
     }
     @GetMapping("/pt/{patientId}") // Doctor can access
     public ResponseEntity<?> getPatientNameAndAge(@PathVariable Long patientId) {
@@ -95,7 +93,7 @@ public class    DoctorController {
             Patient patient = patientService.findById(patientId);
 
             // Check if the patient exists
-            if (patient == null) {
+            if (patient == null && patient.isDeleteFlag()) {
                 return ResponseEntity.notFound().build(); // Return 404 Not Found if patient is not found
             }
 
@@ -115,18 +113,18 @@ public class    DoctorController {
     @GetMapping("/doctor-details/{email}")
     public ResponseEntity<?> getUserDetailsByEmail(@PathVariable String email) {
         System.out.println("\n Inside getUserFrom Email \n" + email);
-        Optional<Doctor> userDetails = doctorService.getUserByEmail(email);
-        if (userDetails.isPresent()) {
-            return ResponseEntity.ok(userDetails.get());
+        Doctor userDetails = doctorService.getUserByEmail(email).orElse(null);
+        if (userDetails != null && !userDetails.isDeleteFlag()) {
+            return ResponseEntity.ok(userDetails);
         } else {
-            return ResponseEntity.notFound().build(); // User not found
+            return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/fetchname/{doctorid}")
     public ResponseEntity<?> getName(@PathVariable Long doctorid) {
         Doctor doctor = doctorService.findById(doctorid);
-        if (doctor != null) {
+        if (doctor != null && !doctor.isDeleteFlag()) {
             return ResponseEntity.ok(doctor.getName());
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor not found");
@@ -136,14 +134,20 @@ public class    DoctorController {
     @GetMapping("/id")
     public ResponseEntity<Patient> getPatientById(@RequestParam String phoneNumber) {
         Patient patient = patientService.getPatientByPhoneNumber(phoneNumber);
-        return ResponseEntity.ok(patient);
+        if(patient != null && !patient.isDeleteFlag()) {
+            return ResponseEntity.ok(patient);
+        }
+        return ResponseEntity.notFound().build();
     }
 
 
     @GetMapping(params = "phoneNumber") // Get patient details from phone number
     public ResponseEntity<Patient> getPatientByPhoneNumber(@RequestParam String phoneNumber) {
         Patient patient = patientService.getPatientByPhoneNumber(phoneNumber);
-        return ResponseEntity.ok(patient);
+        if(patient != null && !patient.isDeleteFlag()) {
+            return ResponseEntity.ok(patient);
+        }
+        return ResponseEntity.notFound().build();
     }
     @GetMapping("/alldoctors")
     public List<Doctor> getAllDoctors() {
@@ -155,9 +159,6 @@ public class    DoctorController {
         Patient createdPatient = patientService.createPatient(patient);
         return new ResponseEntity<>(createdPatient, HttpStatus.CREATED);
 }
-
-
-
     //murli
     @GetMapping("/all")
     public ResponseEntity<List<Doctor>> getAllDoctorsExceptPassword() {
@@ -203,25 +204,25 @@ public class    DoctorController {
         doctorService.updateDoctorSdid(doctorId, newSdid);
         return ResponseEntity.ok("Supervisor Doctor ID updated successfully");
     }
-//murli
-@GetMapping("/by-email/{email}")
-public ResponseEntity<Long> getDoctorIdByEmail(@PathVariable String email) {
-    Doctor doctor = doctorService.findByEmail(email);
-    if (doctor != null) {
-        return ResponseEntity.ok(doctor.getId());
-    } else {
-        return ResponseEntity.notFound().build();
+    //murli
+    @GetMapping("/by-email/{email}")
+    public ResponseEntity<Long> getDoctorIdByEmail(@PathVariable String email) {
+        Doctor doctor = doctorService.findByEmail(email);
+        if (doctor != null) {
+            return ResponseEntity.ok(doctor.getId());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
-}
 
-//murli
-@GetMapping("/{doctorId}/details")
-public ResponseEntity<?> getDoctorNameAndPhoneNumber(@PathVariable Long doctorId) {
-    Doctor doctor = doctorService.getDoctorNameAndPhoneNumber(doctorId);
-    if (doctor != null) {
-        return ResponseEntity.ok(doctor);
-    } else {
-        return ResponseEntity.notFound().build();
+    //murli
+    @GetMapping("/{doctorId}/details")
+    public ResponseEntity<?> getDoctorNameAndPhoneNumber(@PathVariable Long doctorId) {
+        Doctor doctor = doctorService.getDoctorNameAndPhoneNumber(doctorId);
+        if (doctor != null) {
+            return ResponseEntity.ok(doctor);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
-}
 }

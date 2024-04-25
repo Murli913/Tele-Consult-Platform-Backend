@@ -6,6 +6,7 @@ import com.teleconsulting.demo.model.Doctor;
 import com.teleconsulting.demo.model.Patient;
 import com.teleconsulting.demo.repository.PatientRepository;
 import com.teleconsulting.demo.service.DoctorService;
+import com.teleconsulting.demo.service.PatientService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,14 +16,12 @@ import java.util.List;
 @RequestMapping("/admin")
 @CrossOrigin("http://localhost:5173")
 public class AdminController {
-    private final PatientRepository patientRepository;
+    private final PatientService patientService;
     private final DoctorService doctorService;
-
-    public AdminController(PatientRepository patientRepository, DoctorService doctorService) {
-        this.patientRepository = patientRepository;
+    public AdminController(PatientService patientService, DoctorService doctorService) {
+        this.patientService = patientService;
         this.doctorService = doctorService;
     }
-
     @PostMapping("/register/doctor")
     public ResponseEntity<?> RegisterDoctor(@RequestBody RegDoc regDoc) {
         System.out.println("\nInside Admin Controller Register Doc\n");
@@ -52,14 +51,11 @@ public class AdminController {
     }
     @GetMapping("/patient")
     List<Patient> getAllPatients() {
-        return patientRepository.findAll();
+        return patientService.findAll();
     }
     @DeleteMapping("/patient/{id}")
     public ResponseEntity<?> deletePatient(@PathVariable Long id){
-        if(!patientRepository.existsById(id)){
-            return ResponseEntity.ok("Patient ID not found");
-        }
-        patientRepository.deleteById(id);
+        patientService.deletePatient(id);
         return ResponseEntity.ok("Patient with id "+id+" has been deleted success.");
     }
 }

@@ -27,9 +27,8 @@ public interface CallHistoryRepository extends JpaRepository<CallHistory, Long> 
     Long countDistinctByDoctorId(Long doctorId);
     //AZIZ
     List<CallHistory> findByDoctorAndPatient(Doctor doctor, Patient patient);
-//teja
-@Query("SELECT ch FROM CallHistory ch WHERE ch.patient.id = :patientId AND ch.callDate >= :startDate AND ch.endTime IS NULL")
-List<CallHistory> findByPatientIdAndGreaterThanEqualAndEndTimeIsNull(@Param("patientId") Long patientId, @Param("startDate") LocalDate startDate);
-
+    //teja
+    @Query("SELECT ch FROM CallHistory ch WHERE ch.patient.id = :patientId AND ch.callDate >= :startDate AND ch.endTime IS NULL")
+    List<CallHistory> findByPatientIdAndGreaterThanEqualAndEndTimeIsNull(@Param("patientId") Long patientId, @Param("startDate") LocalDate startDate);
     List<CallHistory> findByPatientIdAndEndTimeIsNotNull(Long patientId);
 }

@@ -35,7 +35,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .build();
         }
         Doctor doctor = doctorRepository.findByEmail(username).orElse(null);
-        if(doctor != null){
+        if(doctor != null && !doctor.isDeleteFlag()){
             System.out.println("\n\n"+doctor);
             return org.springframework.security.core.userdetails.User.withUsername(doctor.getEmail())
                     .password(doctor.getPassword())
@@ -43,7 +43,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .build();
         }
         Patient patient = patientRepository.findByEmail(username).orElse(null);
-        if(patient != null){
+        if(patient != null && !patient.isDeleteFlag()){
             return org.springframework.security.core.userdetails.User.withUsername(patient.getEmail())
                     .password(patient.getPassword())
                     .roles(String.valueOf(patient.getRole()))

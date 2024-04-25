@@ -28,21 +28,22 @@ import static com.teleconsulting.demo.service.CallHandlingService.availableDocto
 public class CallHistoryController {
     private final CallHistoryService callHistoryService;
     private final PatientService patientService;
-    private final EmailService emailService;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
     private final CallHistoryRepository callHistoryRepository;
     private final CallHandlingService callHandlingService;
+    private final EmailService emailService;
 
     private final DoctorService doctorService;
-    public CallHistoryController(CallHistoryService callHistoryService, PatientService patientService, EmailService emailService, DoctorRepository doctorRepository, PatientRepository patientRepository, CallHistoryRepository callHistoryRepository, CallHandlingService callHandlingService, DoctorService doctorService) {
+
+    public CallHistoryController(CallHistoryService callHistoryService, PatientService patientService, DoctorRepository doctorRepository, PatientRepository patientRepository, CallHistoryRepository callHistoryRepository, CallHandlingService callHandlingService, EmailService emailService, DoctorService doctorService) {
         this.callHistoryService = callHistoryService;
         this.patientService = patientService;
-        this.emailService = emailService;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
         this.callHistoryRepository = callHistoryRepository;
         this.callHandlingService = callHandlingService;
+        this.emailService = emailService;
         this.doctorService = doctorService;
     }
 

@@ -10,7 +10,11 @@ import java.util.List;
 import java.util.Optional;
 
 import com.teleconsulting.demo.model.Doctor;
+import org.springframework.stereotype.Service;
+
+
 public interface DoctorService{
+    Doctor getById(Long id);
     Doctor saveDoctor(Doctor doctor);
     AuthenticationResponse saveNewDoctor(RegDoc regDoc);
     List<Doctor> getAllDoctors();
@@ -19,12 +23,11 @@ public interface DoctorService{
     Doctor updateDoctorIncomingCall(String doctorPhoneNumber, String patientPhoneNumber);
     Doctor updateDoctor(Long id,Doctor doctor);
     void deleteDoctorById(Long id) throws UserNotFoundException;
-    List<Doctor> getDoctorsBySupervisorId(Long supervisorId);
+    List<Doctor> getDoctorsUnderSeniorDoctor(Long supervisorId);
    //murli
     List<Doctor> getAllDoctorsExceptPassword();
     //murli
     Long countDoctors();
-    List<Doctor> getDoctorsUnderSeniorDoctor(Long seniorDoctorId);
     void updateRating(Long id, int rating);
     List<DoctorRating> getAllRatings();
     Doctor updateDoctors(Long id, Doctor updatedDoctor);
@@ -35,9 +38,6 @@ public interface DoctorService{
     //AZIZ
     List<Doctor> findAllAvailableDoctors();
     Optional<Doctor> getUserByEmail(String token);
-
     //teja
     List<Ddetails> getSnrDoctors();
-
-// Add this method
 }

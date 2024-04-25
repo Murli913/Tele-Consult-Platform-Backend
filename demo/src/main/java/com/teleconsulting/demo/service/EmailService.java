@@ -4,15 +4,14 @@ package com.teleconsulting.demo.service;
 import com.teleconsulting.demo.model.CallHistory;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
-    @Autowired
     private JavaMailSender mailSender;
-
     public void sendAppointmentNotification(CallHistory appointment) throws MessagingException {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("azizrocky1951@gmail.com");

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import javax.print.Doc;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -30,20 +31,45 @@ public class DoctorServiceImpl implements DoctorService{
         this.doctorRepository = doctorRepository;
     }
 
+    private static final String key = "AP6bYQSb8OBtd6k9Xp80koDXwOwzo03V";
+    public static String encrypt(String plaintext) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "AES");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] encryptedBytes = cipher.doFinal(plaintext.getBytes());
+        return Base64.getEncoder().encodeToString(encryptedBytes);
+    }
+
+    public static String decrypt(String ciphertext) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "AES");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(ciphertext));
+        return new String(decryptedBytes);
+    }
+
     @Override
-    public List<Doctor> getDoctorsBySupervisorId(Long supervisorId) {
+    public List<Doctor> getDoctorsUnderSeniorDoctor(Long supervisorId) {
         System.out.println("\nInside getDoctorBySup DoctorServiceImpl\n");
         List<Doctor> doctors = doctorRepository.findBySupervisorDoctorId(supervisorId);
         for(Doctor doctor : doctors){
-            String temp = doctor.getPhoneNumber();
-            try{
-                doctor.setPhoneNumber(decrypt(temp));
-            }catch(Exception e)
-            {
-                System.out.println("\nException in PatientServiceImple findById\n"+e);
+            if(!doctor.isDeleteFlag()) {
+                String temp = doctor.getPhoneNumber();
+                try{
+                    doctor.setPhoneNumber(decrypt(temp));
+                }catch(Exception e)
+                {
+                    System.out.println("\nException in DocServiceImple\n"+e);
+                }
             }
         }
        return doctors;
+    }
+
+    @Override
+    public Doctor getById(Long id) {
+        return doctorRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Override
@@ -54,8 +80,7 @@ public class DoctorServiceImpl implements DoctorService{
     }
     @Override
     public AuthenticationResponse saveNewDoctor(RegDoc regDoc) {
-        Doctor doctor2 = new Doctor();
-        doctor2 = doctorRepository.findByEmail(regDoc.getEmail()).orElse(null);
+        Doctor doctor2 = doctorRepository.findByEmail(regDoc.getEmail()).orElse(null);
         if(doctor2 == null)
         {
             Doctor doctor1 = new Doctor();
@@ -63,8 +88,12 @@ public class DoctorServiceImpl implements DoctorService{
             doctor1.setEmail(regDoc.getEmail());
             doctor1.setGender(regDoc.getGender());
             doctor1.setPassword(passwordEncoder.encode(regDoc.getPassword()));
-            doctor1.setPhoneNumber(passwordEncoder.encode(regDoc.getPhoneNumber()));
-            System.out.println(regDoc.getSupervisorDoctor()+"\n");
+            try{
+                doctor1.setPhoneNumber(decrypt(regDoc.getPhoneNumber()));
+            }catch(Exception e)
+            {
+                System.out.println(e);
+            }
             if(regDoc.getSupervisorDoctor() == null)
             {
                 System.out.println("Hello Sr Doc \n");
@@ -85,7 +114,8 @@ public class DoctorServiceImpl implements DoctorService{
                 doctor1.setSupervisorDoctor(null);
             }
             doctor1.setIncomingCall(null);
-            System.out.println(doctor1.getSupervisorDoctor());
+            doctor1.setDeleteFlag(false);
+            doctor1.setAvailability(true);
             doctorRepository.save(doctor1);
             return new AuthenticationResponse(null, "Doctor Registration was Successful");
         }
@@ -96,7 +126,7 @@ public class DoctorServiceImpl implements DoctorService{
     @Override
     public List<Doctor> getAllDoctors() {
 
-        List<Doctor> doctors = doctorRepository.findAll();
+        List<Doctor> doctors = doctorRepository.findAllDoctors();
         for(Doctor doctor : doctors){
             String temp = doctor.getPhoneNumber();
             try{
@@ -110,18 +140,20 @@ public class DoctorServiceImpl implements DoctorService{
     }
     @Override
     public Doctor findByPhoneNumber(String phoneNumber) {
-        String newPhone = passwordEncoder.encode(phoneNumber);
-        Doctor doctor = doctorRepository.findByPhoneNumber(newPhone);
-        String temp = doctor.getPhoneNumber();
-        try{
+        String newPhone = null;
+        try {
+            newPhone = encrypt(phoneNumber);
+            Doctor doctor = doctorRepository.findByPhoneNumber(newPhone);
+            if(!doctor.isDeleteFlag())
+                return null;
+            String temp = doctor.getPhoneNumber();
             doctor.setPhoneNumber(decrypt(temp));
-        }catch(Exception e)
-        {
-            System.out.println("\nException in Finding PhoneNumber\n"+e);
+            return doctor;
+        } catch (Exception e) {
+            System.out.println(e);
         }
-      return doctor;
+        return null;
     }
-
     @Override
     public Doctor findById(Long id) {
         Doctor doctor = doctorRepository.findById(id).orElse(null);
@@ -134,7 +166,6 @@ public class DoctorServiceImpl implements DoctorService{
         }
       return doctor;
     }
-
     @Override
     public Doctor updateDoctorIncomingCall(String doctorPhoneNumber, String patientPhoneNumber) {
         String newPhone = passwordEncoder.encode(doctorPhoneNumber);
@@ -144,32 +175,39 @@ public class DoctorServiceImpl implements DoctorService{
             return doctorRepository.save(doctor);
         } else {
             return null;
-}
+        }
     }
-
     @Override
     public Doctor updateDoctor(Long id, Doctor updatedDoctor) {
         Doctor existingDoctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Doctor not found with id: " + id));
-        System.out.println("\nUpdated DOc"+updatedDoctor+"\n");
+        System.out.println("\nUpdated Doc"+updatedDoctor+"\n");
         existingDoctor.setName(updatedDoctor.getName());
         existingDoctor.setGender(updatedDoctor.getGender());
-        existingDoctor.setPhoneNumber(passwordEncoder.encode(updatedDoctor.getPhoneNumber()));
+        try{
+            existingDoctor.setPhoneNumber(decrypt(updatedDoctor.getPhoneNumber()));
+        }catch(Exception e)
+        {
+            System.out.println("\nException in DoctorSerImpl updateDoctor\n"+e);
+        }
         existingDoctor.setEmail(updatedDoctor.getEmail());
         existingDoctor.setPassword(passwordEncoder.encode(updatedDoctor.getPassword()));
         existingDoctor.setRole(Role.valueOf(Role.DOCTOR.toString()));
         existingDoctor.setSupervisorDoctor(updatedDoctor.getSupervisorDoctor());
         doctorRepository.save(existingDoctor);
-        // Save the updated doctor entity
         return existingDoctor;
     }
 
     @Override
     public void deleteDoctorById(Long id) {
-        if(!doctorRepository.existsById(id)){
+        Doctor doctor = doctorRepository.findById(id).orElse(null);
+        if(doctor != null) {
+            doctor.setDeleteFlag(true);
+            doctorRepository.save(doctor);
+        }
+        else {
             throw new UserNotFoundException(id);
         }
-        doctorRepository.deleteById(id);
     }
     //murli
     @Override
@@ -186,11 +224,6 @@ public class DoctorServiceImpl implements DoctorService{
         return doctorRepository.count();
     }
 
-    //murli
-    @Override
-    public List<Doctor> getDoctorsUnderSeniorDoctor(Long seniorDoctorId) {
-        return doctorRepository.findBySupervisorDoctorId(seniorDoctorId);
-    }
 
     @Override
     public void updateRating(Long id, int rating) {
@@ -246,82 +279,65 @@ public class DoctorServiceImpl implements DoctorService{
     }
 
 
-//murli
-@Override
-public Doctor findByEmail(String email) {
-    return doctorRepository.findByEmail(email).orElse(null);
-}
-//murli
-@Override
-public Doctor getDoctorNameAndPhoneNumber(Long doctorId) {
-    return doctorRepository.findById(doctorId).map(doctor -> {
-        Doctor doctorDetails = new Doctor();
-        doctorDetails.setName(doctor.getName());
-        doctorDetails.setPhoneNumber(doctor.getPhoneNumber());
-        return doctorDetails;
-    }).orElse(null);
-}
-
-//MAHARISHI
+    //murli
     @Override
-public List<Doctor> getAllSrDoctors() {
-        List<Doctor> doctors = doctorRepository.findAllSrDocs();
-        for(Doctor doctor : doctors){
-            String temp = doctor.getPhoneNumber();
-            try{
-                doctor.setPhoneNumber(decrypt(temp));
-            }catch(Exception e)
-            {
-                System.out.println("\nException in PatientServiceImple findById\n"+e);
-            }
-        }
-       return doctors;
-}
-//aziz
-@Override
-public List<Doctor> findAllAvailableDoctors() {
-    return doctorRepository.findByIncomingCallIsNull();
-}
-
-//AZIZ
-@Override
-public Optional<Doctor> getUserByEmail(String email) {
-    return doctorRepository.findByEmail(email);
-}
-
-//teja
-@Override
-public List<Ddetails> getSnrDoctors() {
-    List<Doctor> doctors = doctorRepository.findBySupervisorDoctorIsNull();
-    return doctors.stream()
-            .map(doctor -> {
-                Ddetails doctorDetails = new Ddetails();
-                doctorDetails.setId(doctor.getId());
-                doctorDetails.setName(doctor.getName());
-                doctorDetails.setGender(doctor.getGender());
-                doctorDetails.setPhoneNumber(doctor.getPhoneNumber());
-                doctorDetails.setEmail(doctor.getEmail());
-                doctorDetails.setAppointmentCount(doctor.getAppointmentCount());
-                doctorDetails.setTotalRating((float) doctor.getTotalRating());
-                return doctorDetails;
-            })
-            .collect(Collectors.toList());
-}
-    private static final String key = "AP6bYQSb8OBtd6k9Xp80koDXwOwzo03V";
-    public static String encrypt(String plaintext) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES");
-        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "AES");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        byte[] encryptedBytes = cipher.doFinal(plaintext.getBytes());
-        return Base64.getEncoder().encodeToString(encryptedBytes);
+    public Doctor findByEmail(String email) {
+        return doctorRepository.findByEmail(email).orElse(null);
+    }
+    //murli
+    @Override
+    public Doctor getDoctorNameAndPhoneNumber(Long doctorId) {
+        return doctorRepository.findById(doctorId).map(doctor -> {
+            Doctor doctorDetails = new Doctor();
+            doctorDetails.setName(doctor.getName());
+            doctorDetails.setPhoneNumber(doctor.getPhoneNumber());
+            return doctorDetails;
+        }).orElse(null);
     }
 
-    public static String decrypt(String ciphertext) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES");
-        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "AES");
-        cipher.init(Cipher.DECRYPT_MODE, secretKey);
-        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(ciphertext));
-        return new String(decryptedBytes);
-}
+    //MAHARISHI
+    @Override
+    public List<Doctor> getAllSrDoctors() {
+            List<Doctor> doctors = doctorRepository.findAllSrDocs();
+            for(Doctor doctor : doctors){
+                String temp = doctor.getPhoneNumber();
+                try{
+                    doctor.setPhoneNumber(decrypt(temp));
+                }catch(Exception e)
+                {
+                    System.out.println("\nException in PatientServiceImple findById\n"+e);
+                }
+            }
+           return doctors;
+    }
+    //aziz
+    @Override
+    public List<Doctor> findAllAvailableDoctors() {
+        return doctorRepository.findByIncomingCallIsNull();
+    }
 
+    //AZIZ
+    @Override
+    public Optional<Doctor> getUserByEmail(String email) {
+        return doctorRepository.findByEmail(email);
+    }
+
+    //teja
+    @Override
+    public List<Ddetails> getSnrDoctors() {
+        List<Doctor> doctors = doctorRepository.findBySupervisorDoctorIsNull();
+        return doctors.stream()
+                .map(doctor -> {
+                    Ddetails doctorDetails = new Ddetails();
+                    doctorDetails.setId(doctor.getId());
+                    doctorDetails.setName(doctor.getName());
+                    doctorDetails.setGender(doctor.getGender());
+                    doctorDetails.setPhoneNumber(doctor.getPhoneNumber());
+                    doctorDetails.setEmail(doctor.getEmail());
+                    doctorDetails.setAppointmentCount(doctor.getAppointmentCount());
+                    doctorDetails.setTotalRating((float) doctor.getTotalRating());
+                    return doctorDetails;
+                })
+                .collect(Collectors.toList());
+    }
 }
